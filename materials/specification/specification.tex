@@ -1,7 +1,11 @@
 \documentclass[9pt]{article}
 \usepackage[margin=0.75in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
 
-\title{Implementacja gry Sokoban w C i GTK+}
+\title{Implementacja gry Sokoban w C i GTK}
 \author{Igor Krzywda}
 \date{\today}
 
@@ -9,61 +13,57 @@
 
 \maketitle
 
-\section{Sokoban}
-
-Gra polega na rozmieszczeniu skrzyń w odpowiednie miejsca w magazynie.
+\section*{Zasady Sobokan}
+Cel gry polega na rozmieszczeniu skrzyń w odpowiednie miejsca w magazynie. Magazyn
+jest planszą składającą się z kwadratowych pól, na których mogą się znajdować
+ściany, skrzynie lub gracz.
 Skrzynie są przemieszczane przez postać kontrolowaną przez gracza według 
 następujących zasad:
 \begin{itemize}
+    \item postać może poruszać się jedynie po pustych polach w 4 kierunkach:
+        lewo, prawo, góra, dół
     \item skrzynie można jedynie pchać
-    \item nie można pchnąć jednej skrzyni za pomocą drugiej
+    \item nie da się pchnąć jednej skrzyni za pomocą drugiej
     \item ściany są nieruchome
 \end{itemize}
 
-\section{Interakcja z użytkownikiem}
+\section*{Interakcja z użytkownikiem}
 
-\subsection{Menu główne}
-Menu główne będzie się składało z planszy 5 na 4 wypełnionej kwadratami 
+\subsection*{Menu główne}
+Menu główne będzie się składało z planszy 5 na 4 wypełnionej przyciskami
 ponumerowanymi od 1 do 20 reprezentującymi poziomy. Aby rozpocząć rozgrywkę
-należy kliknąć w wybrany kwadrat.
+należy kliknąć w przycisk z wybraną liczbą, który rozpocznie grę na danym 
+poziomie.
 
-\subsection{Rozgrywka}
-Podczas rozgrywki gracz będzie kontrolował postać strzałkami lub przyciskami 
-`hjkl'. Dodatkowo będzie miał opcje cofnięcia ruchu `u' oraz zapauzowania gry 
-`ESC'. Czas gry będzie stale wyświetlany w lewym górnym rogu.
-Po rozmieszczeniu poprawnie skrzyń gra automatycznie się kończy.
+\subsection*{Rozgrywka}
+Podczas rozgrywki gracz będzie kontrolował postać strzałkami. 
+Dodatkowo będzie miał opcje cofnięcia ruchu za pomocą \texttt{`u'} oraz 
+zapauzowania gry z użyciem \texttt{`ESC'}. Czas gry będzie stale wyświetlany w 
+lewym górnym rogu.
+Po rozmieszczeniu poprawnie wszystkich skrzyń gra automatycznie się kończy i 
+przenosi gracza do ekranu końcowego.
 
-\subsection{Koniec rozgrywki}
+\subsection*{Koniec rozgrywki}
 Po ukończeniu poziomu zostaje wyświetlony czas wraz z informacją czy jest to nowy
-rekord. Dostępne będą opcje powtórzenia poziomu lub powrotu do menu głównego.
+rekord. Dostępne będą opcje powtórzenia poziomu lub powrotu do menu głównego pod
+odpowiednimi przyciskami.
 
+\section*{Implementacja}
+Program będzie podzielony na trzy główne moduły. Moduł \texttt{sobokan} będzie
+abstrakcyjną reprezentacją gry, gdzie planszą będzie tablica dwuwymiarowa
+znaków reprezentujących odpowiednie obiekty. Za pomocą sygnałów będzie można 
+zmieniać stan planszy (np.ruch do góry będzie zmieniał stan pola, na którym
+znajduje się postać i pola bezpośrednio nad nią w zależności od ich relacji). Drugi 
+moduł \texttt{game} będzie 
+obsługiwał główną pętlę gry czyli wyświetlanie planszy z użyciem tekstur przy
+pomocy biblioteki GTK oraz czytanie i wykonywanie instrukcji gracza. 
+Ostatni moduł \texttt{gui} będzie odpowiedzialny za interakcje z użytkownikiem 
+na poziomie wszystkich menu.
+
+\section*{Źródła}
 \begin{itemize}
-    \item najlepszy czas dla każdej trudności
-    \item liczba rozwiązanych zagadek
-    \item średni czas rozgrywki oraz łączny czas rozgrywki
+    \item ``Sobokan''. Wikipedia, Wikipedia Foundation, 7 listopada 2021, 
+        \url{https://en.wikipedia.org/wiki/Sokoban}
 \end{itemize}
-
-\section{Moduły}
-
-\subsection{Sobokan}
-
-\subsection{Generowanie poziomów}
-Poziomy będą proceduralnie generowane za pomocą algorytmu opisanego w pracy
-naukowej \textit{`Procedural Generation of Sokoban levels'}\footnote{Joshua Taylor 
-\& Ian Parberry `Procedural Generation of Sokoban levels', luty 2011, University 
-of North Texas} i będą reprezentowane przez dwuwymiarową tablicę liczb całkowitych
-reprezentujących typ bloków.
-
-% IMPLEMENTATION:
-% ===============
-
-% C with GTK+
-% Features:
-% ---------
-
-% point system based on time and difficulty of a level
-% levels are procedurally generated (refer to the paper)
-% movement with arrows / hjkl
-% general data displayed in main menu
 
 \end{document}
