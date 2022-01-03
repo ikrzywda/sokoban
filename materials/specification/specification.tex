@@ -1,11 +1,13 @@
-\documentclass{article}
-
-\begin{document}
+\documentclass[9pt]{article}
+\usepackage[margin=0.75in]{geometry}
 
 \title{Implementacja gry Sokoban w C i GTK+}
 \author{Igor Krzywda}
+\date{\today}
 
-\maketitile
+\begin{document}
+
+\maketitle
 
 \section{Sokoban}
 
@@ -20,25 +22,38 @@ następujących zasad:
 
 \section{Interakcja z użytkownikiem}
 
-Gracz będzie rozpoczynał rozgrywkę na proceduralnie wygenerowanym
-poziomie\footnote{Joshua Taylor \& Ian Parberry `Procedural 
-Generation of Sokoban levels', luty 2011, University of North Texas} zgodnie
-ze wcześniej wybraną trudnością. Trudność będzie zależna od wielkości planszy.
-Postać będzie kontrolowana za pomocą przycisków `hjkl' lub strzałek.
-Dodatkowymi opcjami będzie cofnięcie ruchu ('u') oraz pauza ('p'). Po
-ukończeniu poziomu, czas wraz z trudnością będą zapisane w celu prowadzenia 
-następujących statystyk:
+\subsection{Menu główne}
+Menu główne będzie się składało z planszy 5 na 4 wypełnionej kwadratami 
+ponumerowanymi od 1 do 20 reprezentującymi poziomy. Aby rozpocząć rozgrywkę
+należy kliknąć w wybrany kwadrat.
+
+\subsection{Rozgrywka}
+Podczas rozgrywki gracz będzie kontrolował postać strzałkami lub przyciskami 
+`hjkl'. Dodatkowo będzie miał opcje cofnięcia ruchu `u' oraz zapauzowania gry 
+`ESC'. Czas gry będzie stale wyświetlany w lewym górnym rogu.
+Po rozmieszczeniu poprawnie skrzyń gra automatycznie się kończy.
+
+\subsection{Koniec rozgrywki}
+Po ukończeniu poziomu zostaje wyświetlony czas wraz z informacją czy jest to nowy
+rekord. Dostępne będą opcje powtórzenia poziomu lub powrotu do menu głównego.
+
 \begin{itemize}
     \item najlepszy czas dla każdej trudności
     \item liczba rozwiązanych zagadek
     \item średni czas rozgrywki oraz łączny czas rozgrywki
 \end{itemize}
 
-\section{Implementacja}
+\section{Moduły}
 
-Gra będzie zaimplementowana w języku C z pomocą biblioteki GTK. Poziomy
-będą generowane proceduralnie za pomocą algorytmu opisanego w publikacji 
-UNT. ... yada yada
+\subsection{Sobokan}
+
+\subsection{Generowanie poziomów}
+Poziomy będą proceduralnie generowane za pomocą algorytmu opisanego w pracy
+naukowej \textit{`Procedural Generation of Sokoban levels'}\footnote{Joshua Taylor 
+\& Ian Parberry `Procedural Generation of Sokoban levels', luty 2011, University 
+of North Texas} i będą reprezentowane przez dwuwymiarową tablicę liczb całkowitych
+reprezentujących typ bloków.
+
 % IMPLEMENTATION:
 % ===============
 
