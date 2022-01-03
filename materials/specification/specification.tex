@@ -1,0 +1,54 @@
+\documentclass{article}
+
+\begin{document}
+
+\title{Implementacja gry Sokoban w C i GTK+}
+\author{Igor Krzywda}
+
+\maketitile
+
+\section{Sokoban}
+
+Gra polega na rozmieszczeniu skrzyń w odpowiednie miejsca w magazynie.
+Skrzynie są przemieszczane przez postać kontrolowaną przez gracza według 
+następujących zasad:
+\begin{itemize}
+    \item skrzynie można jedynie pchać
+    \item nie można pchnąć jednej skrzyni za pomocą drugiej
+    \item ściany są nieruchome
+\end{itemize}
+
+\section{Interakcja z użytkownikiem}
+
+Gracz będzie rozpoczynał rozgrywkę na proceduralnie wygenerowanym
+poziomie\footnote{Joshua Taylor \& Ian Parberry `Procedural 
+Generation of Sokoban levels', luty 2011, University of North Texas} zgodnie
+ze wcześniej wybraną trudnością. Trudność będzie zależna od wielkości planszy.
+Postać będzie kontrolowana za pomocą przycisków `hjkl' lub strzałek.
+Dodatkowymi opcjami będzie cofnięcie ruchu ('u') oraz pauza ('p'). Po
+ukończeniu poziomu, czas wraz z trudnością będą zapisane w celu prowadzenia 
+następujących statystyk:
+\begin{itemize}
+    \item najlepszy czas dla każdej trudności
+    \item liczba rozwiązanych zagadek
+    \item średni czas rozgrywki oraz łączny czas rozgrywki
+\end{itemize}
+
+\section{Implementacja}
+
+Gra będzie zaimplementowana w języku C z pomocą biblioteki GTK. Poziomy
+będą generowane proceduralnie za pomocą algorytmu opisanego w publikacji 
+UNT. ... yada yada
+% IMPLEMENTATION:
+% ===============
+
+% C with GTK+
+% Features:
+% ---------
+
+% point system based on time and difficulty of a level
+% levels are procedurally generated (refer to the paper)
+% movement with arrows / hjkl
+% general data displayed in main menu
+
+\end{document}
