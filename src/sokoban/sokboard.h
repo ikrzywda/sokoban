@@ -4,26 +4,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
-#define EMPTY   0
-#define WALL    1
-#define PLAYER  2
-#define CRATE   3
-#define DEST    4
-#define PLAYER_ON_CRATE     PLAYER + CRATE
-#define PLAYER_ON_DEST      PLAYER + DEST
-#define CRATE_ON_DEST       CRATE + DESTINATION
+#define EMPTY           0
+#define WALL            '#'
+#define PLAYER          '@'
+#define CRATE           '$'
+#define DEST            '.'
+#define CRATE_ON_DEST   '^'
+#define PLAYER_ON_DEST  '!'
 
-typedef struct SokBoard {
+#define MOVE_UP       1
+#define MOVE_DOWN     -1
+#define MOVE_LEFT     2
+#define MOVE_RIGHT    -2
+
+typedef int BoardCoordinates[2];
+
+typedef struct Sobokan {
     int width, height;
     char *board;
-} SokBoard;
+    BoardCoordinates ppos;
+    int crates_left;
+    int moves;
+    time_t time;
+} Sobokan;
 
-SokBoard *sokboard_init();
-char sokboard_get_field_at(SokBoard *s, int x, int y);
-bool sokboard_set_field_at(SokBoard *s, char c, int x, int y);
-void sokboard_print(SokBoard *board);
-void sokboard_fill_with_buffer(SokBoard *board, int buffer_size, char *buffer);
-SokBoard *sokboard_read_from_file(const char *source);
+void sob_print_board(Sobokan *board);
+Sobokan *sob_new_instance();
+
+char sob_get_field_at(Sobokan *s, int x, int y);
+bool sob_set_field_at(Sobokan *s, char c, int x, int y);
+
+bool sob_find_player(Sobokan *board);
+bool sob_count_crates(Sobokan *game_instance);
+
+void sob_fill_with_buffer(Sobokan *board, int buffer_size, char *buffer);
+Sobokan *sob_init_from_file(const char *source);
+
+bool sob_get_next_pos(const int direction, BoardCoordinates obj_pos, 
+                      BoardCoordinates next_pos);
+
+bool sob_player_move_up(Sobokan *g_inst, const int direction);
 
 #endif
