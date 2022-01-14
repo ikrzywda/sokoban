@@ -1,7 +1,7 @@
 #include "sokboard.h"
 
-Sobokan *sob_new_instance(int x, int y) {
-    Sobokan *new_instance = malloc(sizeof(Sobokan));
+SobInstance *sob_new_instance(int x, int y) {
+    SobInstance *new_instance = malloc(sizeof(SobInstance));
     new_instance->width = x;
     new_instance->height = y;
     new_instance->board = malloc(x * y);
@@ -11,28 +11,28 @@ Sobokan *sob_new_instance(int x, int y) {
     return new_instance;
 }
 
-char sob_get_field_at(Sobokan *s, int x, int y) {
+char sob_get_field_at(SobInstance *s, int x, int y) {
     if (x > s->width || y > s->height) 
         return -1;
     else 
         return s->board[x * s->width + y];
 }
 
-bool sob_set_field_at(Sobokan *s, char c, int x, int y) {
+bool sob_set_field_at(SobInstance *s, char c, int x, int y) {
     if (x > s->width || y > s->height) return false;
     s->board[x * s->width + y] = c;
     return true;
 }
 
-bool sob_find_player(Sobokan *board) {
+bool sob_find_player(SobInstance *g_inst) {
     char field;
-    for (int i = 0; i < board->height; ++i) {
-        for (int j = 0; j < board->width; ++j) {
-            if ((field = sob_get_field_at(board, i, j)) == PLAYER
+    for (int i = 0; i < g_inst->height; ++i) {
+        for (int j = 0; j < g_inst->width; ++j) {
+            if ((field = sob_get_field_at(g_inst, i, j)) == PLAYER
                 || field == PLAYER_ON_DEST) {
 
-                board->ppos[0] = i;
-                board->ppos[1] = j;
+                g_inst->ppos[0] = i;
+                g_inst->ppos[1] = j;
                 return true;
             }
         }
@@ -40,7 +40,7 @@ bool sob_find_player(Sobokan *board) {
     return false;
 }
 
-bool sob_count_crates(Sobokan *game_instance) {
+bool sob_count_crates(SobInstance *game_instance) {
 
     int crate_count = 0;
 
@@ -64,24 +64,24 @@ bool sob_count_crates(Sobokan *game_instance) {
     return (crate_count == game_instance->crates_left) ? true : false;
 }
 
-void sob_print_board(Sobokan *board) {
-    printf("WIDTH: %d\nHEIGHT: %d\n", board->width, board->height);
-    printf("PLAYER AT: %d,%d\n", board->ppos[0], board->ppos[1]);
-    printf("CRATES_LEFT:%d\n\n", board->crates_left);
+void sob_print_g_inst(SobInstance *g_inst) {
+    printf("WIDTH: %d\nHEIGHT: %d\n", g_inst->width, g_inst->height);
+    printf("PLAYER AT: %d,%d\n", g_inst->ppos[0], g_inst->ppos[1]);
+    printf("CRATES_LEFT:%d\n\n", g_inst->crates_left);
 
-    for (int i = 0; i < board->height; ++i) {
-        for (int j = 0; j < board->width; ++j) {
-            if (board->ppos[0] == i && board->ppos[1] == j) {
+    for (int i = 0; i < g_inst->height; ++i) {
+        for (int j = 0; j < g_inst->width; ++j) {
+            if (g_inst->ppos[0] == i && g_inst->ppos[1] == j) {
                 putchar('@');
             } else {
-                putchar(sob_get_field_at(board, i, j));
+                putchar(sob_get_field_at(g_inst, i, j));
             }
         }
         putchar('\n');
     }
 }
 
-void sob_fill_with_buffer(Sobokan *board, int buffer_size, char *buffer) {
+void sob_fill_with_buffer(SobInstance *g_inst, int buffer_size, char *buffer) {
     char c;
     int i = 0, row = 0, col = 0;
 
@@ -89,13 +89,13 @@ void sob_fill_with_buffer(Sobokan *board, int buffer_size, char *buffer) {
         if (c == '\n') {
             row++; col = 0;
         } else { 
-            sob_set_field_at(board, c, row, col++);
+            sob_set_field_at(g_inst, c, row, col++);
         }
     }
 }
 
-Sobokan *sob_init_from_file(const char *source) {
-    Sobokan *board;
+SobInstance *sob_init_from_file(const char *source) {
+    SobInstance *g_inst;
     int buf_size = 1000, i = 0;
     int max_row_width = 0, row_width = 0, col_count = 0;
     char *buffer = malloc(buf_size), c;
@@ -120,58 +120,47 @@ Sobokan *sob_init_from_file(const char *source) {
     buffer[i] = '\n';
 
     fclose(src);
-    board = sob_new_instance(col_count, max_row_width);
-    sob_fill_with_buffer(board, buf_size, buffer);
-    sob_find_player(board);
-    sob_count_crates(board);
+    g_inst = sob_new_instance(col_count, max_row_width);
+    sob_fill_with_buffer(g_inst, buf_size, buffer);
+    sob_find_player(g_inst);
+    sob_count_crates(g_inst);
     free(buffer);
 
-    return board;
+    return g_inst;
 }
 
-bool sob_get_next_pos(const int direction, BoardCoordinates obj_pos, 
-                      BoardCoordinates next_pos) {
+SobPos *next_pos(SobInstance *g_inst, SobPos pos, SobDirection dir) {
+    return NULL;
+}
 
-    int dx = 0, dy = 0;
-
-    switch (direction) {
-        case MOVE_UP:
-            --dy; break;
-        case MOVE_DOWN:
-            ++dy; break;
-        case MOVE_LEFT:
-            ++dx; break;
-        case MOVE_RIGHT:
-            --dx; break;
-        default: return false;
-    };
-    
-    next_pos[0] = obj_pos[0] + dx;
-    next_pos[1] = obj_pos[1] + dy;
+bool sob_move_player(SobInstance *g_inst, SobDirection dir) {
+    SobPos next_pos = sob_get_next_pos(g_inst->ppos, dir);
+    char field;
+    if ((field = sob_get_field_at(g_inst, next_pos[0], next_pos[1])) == CRATE
+        || field == CRATE_ON_DEST) {
+            if (!sob_move_crate(g_inst, next_pos, dir)) return false;
+        } else if (field == WALL) {
+            return false;
+        }
+        
+    g_inst->ppos[0] = next_pos[0];
+    g_inst->ppos[1] = next_pos[1];
 
     return true;
 }
-/*
-    switch (sob_get_field_at(game_instance, obj_pos[0], obj_pos[1])) {
-        case PLAYER: break;
-        case CRATE: break;
-        case PLAYER_ON_DEST: break;
-        case CRATE_ON_DEST: break;
-        default: return false;
-    };
 
-    return false;
-*/
+bool sob_move_crate(SobInstance *g_inst, SobPos pos, SobDirection dir) {
+    SobPos next_pos = sob_get_next_pos(g_inst->ppos, dir);
+    char field;
+    if ((field = sob_get_field_at(g_inst, next_pos[0], next_pos[1])) == CRATE
+        || field == WALL || c == CRATE_ON_DEST) {
+            return false;
+        } else if (field == DEST) {
+            g_inst->crates_left--;
+        }
 
-bool sob_player_move_up(Sobokan *g_inst, const int direction) {
-
-    BoardCoordinates next_pos;
-    sob_get_next_pos(direction, g_inst->ppos, next_pos);
-
-    switch (sob_get_field_at(g_inst, next_pos[0], next_pos[1])) {
-        case WALL:  printf("WALL"); return false;
-        default:    break;
-    };
+    if (sob_get_field_at(g_inst, pos[0], pos[1]) == DEST)
+        g_inst->crates_left++;
 
     g_inst->ppos[0] = next_pos[0];
     g_inst->ppos[1] = next_pos[1];

@@ -6,45 +6,49 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define EMPTY           0
-#define WALL            '#'
-#define PLAYER          '@'
-#define CRATE           '$'
-#define DEST            '.'
-#define CRATE_ON_DEST   '^'
-#define PLAYER_ON_DEST  '!'
+typedef enum {
+    EMPTY = 0,
+    WALL = '#',
+    PLAYER = '@',
+    CRATE = '$',
+    DEST = '.',
+    CRATE_ON_DEST = '^',
+    PLAYER_ON_DEST = '^',
+} SobField;
 
-#define MOVE_UP       1
-#define MOVE_DOWN     -1
-#define MOVE_LEFT     2
-#define MOVE_RIGHT    -2
+typedef enum {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+} SobDirection;
 
-typedef int BoardCoordinates[2];
 
-typedef struct Sobokan {
+typedef int SobPos[2];
+
+typedef struct SobInstance {
     int width, height;
     char *board;
-    BoardCoordinates ppos;
+    SobPos ppos;
     int crates_left;
     int moves;
     time_t time;
-} Sobokan;
+} SobInstance;
 
-void sob_print_board(Sobokan *board);
-Sobokan *sob_new_instance();
+void sob_print_g_inst(SobInstance *g_inst);
+SobInstance *sob_new_instance();
 
-char sob_get_field_at(Sobokan *s, int x, int y);
-bool sob_set_field_at(Sobokan *s, char c, int x, int y);
+char sob_get_field_at(SobInstance *s, int x, int y);
+bool sob_set_field_at(SobInstance *s, char c, int x, int y);
 
-bool sob_find_player(Sobokan *board);
-bool sob_count_crates(Sobokan *game_instance);
+bool sob_find_player(SobInstance *g_inst);
+bool sob_count_crates(SobInstance *game_instance);
 
-void sob_fill_with_buffer(Sobokan *board, int buffer_size, char *buffer);
-Sobokan *sob_init_from_file(const char *source);
+void sob_fill_with_buffer(SobInstance *g_inst, int buffer_size, char *buffer);
+SobInstance *sob_init_from_file(const char *source);
 
-bool sob_get_next_pos(const int direction, BoardCoordinates obj_pos, 
-                      BoardCoordinates next_pos);
-
-bool sob_player_move_up(Sobokan *g_inst, const int direction);
+SobPos *next_pos(SobInstance *g_inst, SobPos pos, const int dir);
+bool sob_move_player(SobInstance *g_inst, const int dir);
+bool sob_move_crate(SobInstance *g_inst, SobPos pos, const int dir);
 
 #endif
