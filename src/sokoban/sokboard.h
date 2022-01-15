@@ -47,8 +47,8 @@ bool sob_count_crates(SobInstance *game_instance);
 void sob_fill_with_buffer(SobInstance *g_inst, int buffer_size, char *buffer);
 SobInstance *sob_init_from_file(const char *source);
 
-SobPos *next_pos(SobInstance *g_inst, SobPos pos, const int dir);
-bool sob_move_player(SobInstance *g_inst, const int dir);
-bool sob_move_crate(SobInstance *g_inst, SobPos pos, const int dir);
+bool sob_next_pos(SobInstance *g_inst, SobPos pos, SobPos next, SobDirection dir);
+bool sob_move_player(SobInstance *g_inst, SobDirection dir);
+bool sob_move_crate(SobInstance *g_inst, SobPos pos, SobDirection dir);
 
 #endif

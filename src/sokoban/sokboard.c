@@ -129,12 +129,33 @@ SobInstance *sob_init_from_file(const char *source) {
     return g_inst;
 }
 
-SobPos *next_pos(SobInstance *g_inst, SobPos pos, SobDirection dir) {
-    return NULL;
+bool sob_next_pos(SobInstance *g_inst, SobPos pos, SobPos next, SobDirection dir) {
+    int dx = 0, dy = 0;
+    int nx, ny;         // new x and y coordinates
+
+    switch (dir) {
+        case UP: dy = 1; break;
+        case DOWN: dy = -1; break;
+        case LEFT: dx = -1; break;
+        case RIGHT: dx = 1; break;
+        default: return false;
+    };
+
+    if ((nx = pos[0] + dx) > g_inst->width || nx < 0
+        || (ny = pos[1] + dy) > g_inst->height || ny < 0) {
+            return false;
+    }
+
+    next[0] = pos[0] + dx;
+    next[1] = pos[1] + dy;
+
+    return true;
 }
 
 bool sob_move_player(SobInstance *g_inst, SobDirection dir) {
-    SobPos next_pos = sob_get_next_pos(g_inst->ppos, dir);
+    SobPos next_pos;
+    if (!sob_next_pos(g_inst, g_inst->ppos, next_pos, dir)) return false;
+
     char field;
     if ((field = sob_get_field_at(g_inst, next_pos[0], next_pos[1])) == CRATE
         || field == CRATE_ON_DEST) {
@@ -150,10 +171,12 @@ bool sob_move_player(SobInstance *g_inst, SobDirection dir) {
 }
 
 bool sob_move_crate(SobInstance *g_inst, SobPos pos, SobDirection dir) {
-    SobPos next_pos = sob_get_next_pos(g_inst->ppos, dir);
+    SobPos next_pos;
+    if (!sob_next_pos(g_inst, pos, next_pos, dir)) return false;
+
     char field;
     if ((field = sob_get_field_at(g_inst, next_pos[0], next_pos[1])) == CRATE
-        || field == WALL || c == CRATE_ON_DEST) {
+        || field == WALL || field == CRATE_ON_DEST) {
             return false;
         } else if (field == DEST) {
             g_inst->crates_left--;
