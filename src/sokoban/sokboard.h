@@ -7,48 +7,41 @@
 #include <time.h>
 
 typedef enum {
-    EMPTY = 0,
+    EMPTY = ' ',
     WALL = '#',
     PLAYER = '@',
     CRATE = '$',
     DEST = '.',
-    CRATE_ON_DEST = '^',
+    CRATE_ON_DEST = '!',
     PLAYER_ON_DEST = '^',
-} SobField;
+} FieldType;
 
 typedef enum {
     UP,
     DOWN,
     LEFT,
     RIGHT,
-} SobDirection;
+} Direction;
 
-
-typedef int SobPos[2];
-
-typedef struct SobInstance {
+typedef struct Sokoban {
     int width, height;
     char *board;
-    SobPos ppos;
-    int crates_left;
-    int moves;
-    time_t time;
-} SobInstance;
+    int player_x, player_y;
+    int crates_left, moves;
+} Sokoban;
 
-void sob_print_g_inst(SobInstance *g_inst);
-SobInstance *sob_new_instance();
 
-char sob_get_field_at(SobInstance *s, int x, int y);
-bool sob_set_field_at(SobInstance *s, char c, int x, int y);
+Sokoban *sokoban_init(int width, int height);
+Sokoban *sokoban_init_from_buffer(char *buffer);
+void sokoban_print(Sokoban *s);
 
-bool sob_find_player(SobInstance *g_inst);
-bool sob_count_crates(SobInstance *game_instance);
+bool get_delta(Direction d, int *dx, int *dy);
+bool is_in_bound(Sokoban *s, int x, int y);
 
-void sob_fill_with_buffer(SobInstance *g_inst, int buffer_size, char *buffer);
-SobInstance *sob_init_from_file(const char *source);
+bool move_player(Sokoban *s, Direction d);
+bool move_crate(Sokoban *s, Direction d);
 
-bool sob_next_pos(SobInstance *g_inst, SobPos pos, SobPos next, SobDirection dir);
-bool sob_move_player(SobInstance *g_inst, SobDirection dir);
-bool sob_move_crate(SobInstance *g_inst, SobPos pos, SobDirection dir);
+bool parse_board(char *lvl_buffer, int *x, int *y);
+char board_get_field_at(Sokoban *s, int x, int y);
 
 #endif

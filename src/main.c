@@ -4,24 +4,30 @@
 
 int main() {
     char src[50] = "test_board.txt";
-    // scanf("%s", src);
-    SobInstance *s = sob_init_from_file(src);
+    char buffer[1000];
+    FILE *f = fopen(src, "r");
     char c;
+    int i = 0;
+    while ((c = fgetc(f)) != EOF) buffer[i++] = c;
+    buffer[i] = '\0';
+    Sokoban *s = sokoban_init_from_buffer(buffer);
+    sokoban_print(s);
     while ((c = getchar()) != '0') { 
         switch (c) {
             case 'h':
-                sob_move_player(s, LEFT);
+                move_player(s, LEFT);
                 break;
             case 'j':
-                sob_move_player(s, DOWN);
+                move_player(s, DOWN);
                 break;
             case 'k':
-                sob_move_player(s, UP);
+                move_player(s, UP);
                 break;
             case 'l':
-                sob_move_player(s, RIGHT);
+                move_player(s, RIGHT);
                 break;
         };
-        sob_print_g_inst(s);
+        sokoban_print(s);
     }
+    return 0;
 }
