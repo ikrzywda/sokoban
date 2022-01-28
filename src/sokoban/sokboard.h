@@ -40,8 +40,9 @@ bool is_in_bound(Sokoban *s, int x, int y);
 
 bool move_player(Sokoban *s, Direction d);
 bool move_crate(Sokoban *s, Direction d);
+bool swap(Sokoban *s, int x, int y, Direction d);
 
 bool parse_board(char *lvl_buffer, int *x, int *y);
-char board_get_field_at(Sokoban *s, int x, int y);
+char *board_get_field_at(Sokoban *s, int x, int y);
 
 #endif

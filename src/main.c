@@ -28,6 +28,10 @@ int main() {
                 break;
         };
         sokoban_print(s);
+        if (!s->crates_left) {
+            printf("SUCCESS!\n");
+            return 0;
+        }
     }
     return 0;
 }

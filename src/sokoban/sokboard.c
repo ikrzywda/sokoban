@@ -48,6 +48,7 @@ Sokoban *sokoban_init_from_buffer(char *buffer) {
 void sokoban_print(Sokoban *s) {
     printf("width: %d, height: %d\n", s->width, s->height);
     printf("player: (%d, %d)\n", s->player_x, s->player_y);
+    printf("crates left: %d\n", s->crates_left);
     for (int i = 0; i < s->height; ++i) {
         for (int j = 0; j < s->width; ++j) {
             putchar(s->board[j + i * s->width]);
@@ -72,8 +73,66 @@ bool is_in_bound(Sokoban *s, int x, int y) {
     return s->width > x && x >= 0 && s->height > y && y >= 0;
 }
 
+bool swap(Sokoban *s, int x, int y, Direction d) {
+    int nx, ny;
+    if (!get_delta(d, &nx, &ny)) return false;
+    nx = x + nx; ny = y + ny;
+    if (!is_in_bound(s, nx, ny)) return false;
+    char *cf = board_get_field_at(s, x, y),
+         *nf = board_get_field_at(s, nx, ny);
+
+    switch (*cf) {
+        case PLAYER:
+            if (!swap(s, nx, ny, d)) return false;
+            if (*nf == DEST) *nf = PLAYER_ON_DEST;
+            else if (*nf == EMPTY) *nf = PLAYER;
+            else return false;
+            *cf = EMPTY;
+            break;
+        case PLAYER_ON_DEST:
+            if (!swap(s, nx, ny, d)) return false;
+            if (*nf == DEST) *nf = PLAYER_ON_DEST;
+            else if (*nf == EMPTY) *nf = PLAYER;
+            else return false;
+            *cf = DEST;
+            break;
+        case CRATE:
+            if (*nf == CRATE || *nf == CRATE_ON_DEST) return false;
+            if (*nf == DEST) { 
+                *nf = CRATE_ON_DEST;
+                s->crates_left--;
+            } else if (*nf == EMPTY) *nf = CRATE; 
+            else return false;
+            *cf = EMPTY;
+            break;
+        case CRATE_ON_DEST:
+            if (*nf == CRATE || *nf == CRATE_ON_DEST || *nf == WALL) return false;
+            if (*nf == DEST) { 
+                *nf = CRATE_ON_DEST;
+                s->crates_left--;
+            } else if (*nf == EMPTY) *nf = CRATE; 
+            else return false;
+            *cf = DEST;
+            s->crates_left++;
+            break;
+        case WALL: return false;
+        case EMPTY: return true;
+        default: return true;
+    };
+
+    return true;
+}
+
 bool move_player(Sokoban *s, Direction d) {
     int dx, dy;
+    if (!get_delta(d, &dx, &dy)) return false;
+    if (swap(s, s->player_x, s->player_y, d)) {
+        s->player_x += dx;
+        s->player_y += dy;
+        return true;
+    }
+    return false;
+    /*int dx, dy;
     int npx, npy;   // new player position
     char field, current_field = board_get_field_at(s, s->player_x, s->player_y);
     if (!get_delta(d, &dx, &dy)) return false;
@@ -106,11 +165,11 @@ bool move_player(Sokoban *s, Direction d) {
     s->player_x = npx;
     s->player_y = npy;
 
-    return true;
+    return true;*/
 }
 
 bool move_crate(Sokoban *s, Direction d) {
-    int dx, dy;
+    /*int dx, dy;
     if (!get_delta(d, &dx, &dy)) return false;
     int ncx, ncy;   // new crate position
     int x = s->player_y + dx, y = s->player_y + dy;
@@ -141,7 +200,7 @@ bool move_crate(Sokoban *s, Direction d) {
     } else {
         s->board[x + s->width * y] = EMPTY;
     }
-
+*/
     return true;
 }
 
@@ -173,9 +232,9 @@ bool parse_board(char *lvl_buffer, int *x, int *y) {
     return true;
 }
 
-char board_get_field_at(Sokoban *s, int x, int y) {
+char *board_get_field_at(Sokoban *s, int x, int y) {
     if (x > s->width || y > s->height) 
-        return -1;
+        return NULL;
     else 
-        return s->board[x + s->width * y];
+        return &s->board[x + s->width * y];
 }
