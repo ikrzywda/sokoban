@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <time.h>
 
 typedef enum {
@@ -34,13 +35,14 @@ typedef struct Sokoban {
 Sokoban *sokoban_init(int width, int height);
 Sokoban *sokoban_init_from_buffer(char *buffer);
 void sokoban_print(Sokoban *s);
+int sa_coordinate_to_index(Sokoban *level, int x, int y);
 
 bool get_delta(Direction d, int *dx, int *dy);
 bool is_in_bound(Sokoban *s, int x, int y);
 
 bool move_player(Sokoban *s, Direction d, int changed_fields[3]);
 bool move_crate(Sokoban *s, Direction d);
-bool swap(Sokoban *s, int x, int y, Direction d);
+int swap(Sokoban *s, int x, int y, Direction d);
 
 bool parse_board(char *lvl_buffer, int *x, int *y);
 char *board_get_field_at(Sokoban *s, int x, int y);

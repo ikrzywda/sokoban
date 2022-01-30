@@ -70,9 +70,11 @@ void sg_tiles_update(SokobanGame *game, int changed_fields[3]) {
     int asset_index;
     char *board = game->data->board;
     for (int i = 0; i < 3; ++i) {
-        asset_index = sg_field_type_to_asset_index(board[changed_fields[i]]);
-        pixbuf = game->assets[asset_index];
-        gtk_image_set_from_pixbuf(GTK_IMAGE(game->tiles[changed_fields[i]]), pixbuf);
+        if (changed_fields > 0) {
+            asset_index = sg_field_type_to_asset_index(board[changed_fields[i]]);
+            pixbuf = game->assets[asset_index];
+            gtk_image_set_from_pixbuf(GTK_IMAGE(game->tiles[changed_fields[i]]), pixbuf);
+        }
     }
 }
 
@@ -112,7 +114,8 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
     SokobanGame *game = sg_sokoban_game_init(level);
 
     GtkWidget *grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid);
+    GtkWidget *grid_master = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(window), grid_master);
 
     for (int i = 0; i < game->data->height; ++i) {
         for (int j = 0; j < game->data->width; ++j) {
@@ -120,6 +123,9 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
             i, j, 1, 1);
         }
     }
+
+    gtk_grid_attach(GTK_GRID(grid), grid, 2, 2, 1, 1);
+    gtk_widget_show_all(grid_master);
     g_signal_connect (G_OBJECT (window), "key_press_event",
                       G_CALLBACK (sg_handle_keypress), game); 
 }

@@ -11,14 +11,14 @@ int main(int argc, char **argv) {
         printf("%s\n", kAssetPath[i]);
     }
 
-    char src[50] = "test_board.txt";
+    char src[50] = "t.txt";
     char buffer[1000];
     FILE *f = fopen(src, "r");
     char c;
     int i = 0;
     while ((c = fgetc(f)) != EOF) buffer[i++] = c;
     buffer[i] = '\0';
-    Sokoban *s = sokoban_init_from_buffer(buffer);
+    Sokoban *s = sokoban_init_from_buffer(&buffer[0]);
 
     gtk_init (&argc, &argv);
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
