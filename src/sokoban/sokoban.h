@@ -29,6 +29,7 @@ typedef struct Sokoban {
     char *board;
     int player_x, player_y;
     int crates_left, moves;
+    time_t time_start, time_elapsed;
 } Sokoban;
 
 
@@ -36,6 +37,8 @@ Sokoban *sokoban_init(int width, int height);
 Sokoban *sokoban_init_from_buffer(char *buffer);
 void sokoban_print(Sokoban *s);
 int sa_coordinate_to_index(Sokoban *level, int x, int y);
+
+void sa_update_time(Sokoban *level);
 
 bool get_delta(Direction d, int *dx, int *dy);
 bool is_in_bound(Sokoban *s, int x, int y);

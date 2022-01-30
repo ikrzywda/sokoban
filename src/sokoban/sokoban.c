@@ -12,6 +12,8 @@ Sokoban *sokoban_init(int width, int height) {
     new_instance->player_y = -1;
     new_instance->crates_left = 0;
     new_instance->moves = 0;
+    new_instance->time_start = time(NULL);
+    new_instance->time_elapsed = 0;
 
     return new_instance;
 }
@@ -57,6 +59,11 @@ void sokoban_print(Sokoban *s) {
 
 int sa_coordinate_to_index(Sokoban *level, int x, int y) {
     return x + level->width * y;
+}
+
+void sa_update_time(Sokoban *level) {
+    time_t ct = level->time_start;
+    level->time_elapsed = time(NULL) - ct;
 }
 
 bool get_delta(Direction d, int *dx, int *dy) {

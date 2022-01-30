@@ -66,6 +66,7 @@ GtkWidget **sg_init_tiles(GdkPixbuf *assets[ASSET_COUNT], Sokoban *level) {
 }
 
 void sg_tiles_update(SokobanGame *game, int changed_fields[3]) {
+    char buffer[30];
     GdkPixbuf *pixbuf;
     int asset_index;
     char *board = game->data->board;
@@ -76,6 +77,19 @@ void sg_tiles_update(SokobanGame *game, int changed_fields[3]) {
             gtk_image_set_from_pixbuf(GTK_IMAGE(game->tiles[changed_fields[i]]), pixbuf);
         }
     }
+    sprintf(buffer, "crates left: %d", game->data->crates_left);
+    gtk_label_set_text(GTK_LABEL(game->label_crates), buffer);
+    game->data->moves++;
+    sprintf(buffer, "moves: %d", game->data->moves);
+    gtk_label_set_text(GTK_LABEL(game->label_moves), buffer);
+}
+
+void sg_time_label_update(gpointer data) {
+    SokobanGame *game = (SokobanGame*)data;
+    char buffer[30];
+    sa_update_time(game->data);
+    sprintf(buffer, "time: %lu", game->data->time_elapsed);
+    gtk_label_set_text(GTK_LABEL(game->label_time), buffer);
 }
 
 SokobanGame *sg_sokoban_game_init(Sokoban *level) {
@@ -83,6 +97,9 @@ SokobanGame *sg_sokoban_game_init(Sokoban *level) {
     g->data = level;
     generate_assets(g->assets);
     g->tiles = sg_init_tiles(g->assets, level);
+    g->label_crates = gtk_label_new(NULL);
+    g->label_time = gtk_label_new(NULL);
+    g->label_moves = gtk_label_new(NULL);
     return g;
 }
 
@@ -111,21 +128,36 @@ void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data) {
 }
 
 void sg_init_game_window(GtkWidget *window, Sokoban *level) {
-    SokobanGame *game = sg_sokoban_game_init(level);
 
-    GtkWidget *grid = gtk_grid_new();
-    GtkWidget *grid_master = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid_master);
+    char label_crates_left_buffer[30];
+    char label_time_buffer[30];
+
+
+    SokobanGame *game = sg_sokoban_game_init(level);
+    sprintf(label_crates_left_buffer, "CRATES LEFT: %d", game->data->crates_left);
+
+    GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    GtkWidget *box_controls = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+
+    GtkWidget *game_board = gtk_grid_new();
+    GtkWidget *button = gtk_button_new_with_label("RESTART");
 
     for (int i = 0; i < game->data->height; ++i) {
         for (int j = 0; j < game->data->width; ++j) {
-            gtk_grid_attach(GTK_GRID(grid), game->tiles[i + game->data->width * j],
+            gtk_grid_attach(GTK_GRID(game_board), game->tiles[i + game->data->width * j],
             i, j, 1, 1);
         }
     }
 
-    gtk_grid_attach(GTK_GRID(grid), grid, 2, 2, 1, 1);
-    gtk_widget_show_all(grid_master);
+    gtk_box_pack_start(GTK_BOX(box_controls), game->label_crates, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), game->label_time, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), game->label_moves, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_master), box_controls, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_master), game_board, FALSE, TRUE, 10);
+    gtk_container_add(GTK_CONTAINER(window), box_master);
+    gtk_widget_show_all(window);
     g_signal_connect (G_OBJECT (window), "key_press_event",
                       G_CALLBACK (sg_handle_keypress), game); 
+    g_timeout_add(1000, (GSourceFunc)sg_time_label_update, (gpointer)game);
 }
