@@ -84,7 +84,7 @@ void sg_tiles_update(SokobanGame *game, int changed_fields[3]) {
     gtk_label_set_text(GTK_LABEL(game->label_moves), buffer);
 }
 
-void sg_time_label_update(gpointer data) {
+void _sg_time_label_update(gpointer data) {
     SokobanGame *game = (SokobanGame*)data;
     char buffer[30];
     sa_update_time(game->data);
@@ -129,18 +129,15 @@ void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data) {
 
 void sg_init_game_window(GtkWidget *window, Sokoban *level) {
 
-    char label_crates_left_buffer[30];
-    char label_time_buffer[30];
-
-
     SokobanGame *game = sg_sokoban_game_init(level);
-    sprintf(label_crates_left_buffer, "CRATES LEFT: %d", game->data->crates_left);
 
     GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     GtkWidget *box_controls = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 
     GtkWidget *game_board = gtk_grid_new();
-    GtkWidget *button = gtk_button_new_with_label("RESTART");
+    GtkWidget *button_restart = gtk_button_new_with_label("RESTART");
+    GtkWidget *button_save = gtk_button_new_with_label("SAVE & EXIT");
+    GtkWidget *button_abandon = gtk_button_new_with_label("ABANDON");
 
     for (int i = 0; i < game->data->height; ++i) {
         for (int j = 0; j < game->data->width; ++j) {
@@ -152,12 +149,16 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
     gtk_box_pack_start(GTK_BOX(box_controls), game->label_crates, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box_controls), game->label_time, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box_controls), game->label_moves, FALSE, TRUE, 10);
-    gtk_box_pack_start(GTK_BOX(box_controls), button, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button_restart, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button_save, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button_abandon, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box_master), box_controls, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box_master), game_board, FALSE, TRUE, 10);
+
     gtk_container_add(GTK_CONTAINER(window), box_master);
     gtk_widget_show_all(window);
+
     g_signal_connect (G_OBJECT (window), "key_press_event",
                       G_CALLBACK (sg_handle_keypress), game); 
-    g_timeout_add(1000, (GSourceFunc)sg_time_label_update, (gpointer)game);
+    g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
 }

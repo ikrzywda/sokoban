@@ -5,8 +5,8 @@
 #define ASSET_COUNT 8
 
 static const char *const kAssetPath[] = {
-    "assets/wall.png",
     "assets/floor.png",
+    "assets/wall.png",
     "assets/crate.png",
     "assets/crate_on_dest.png",
     "assets/worker.png",
