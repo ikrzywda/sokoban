@@ -2,7 +2,9 @@
 #define CONSTANTS_H
 
 #define TILE_SIZE 50
+#define LEVEL_COUNT 20
 #define ASSET_COUNT 8
+#define LEVEL_BUFFER_SIZE 1000
 
 static const char *const kAssetPath[] = {
     "assets/floor.png",
@@ -26,5 +28,15 @@ typedef enum AssetIndex {
     ASSET_ERROR = 7,
 } AssetIndex;
 
+static const char *const kLevelPath[] = {
+    "levels/1.txt",
+    "levels/2.txt",
+    "levels/3.txt",
+    "levels/4.txt",
+    "levels/5.txt",
+    "levels/6.txt",
+    "levels/dest.png",
+    "levels/error.png",
+};
 
 #endif

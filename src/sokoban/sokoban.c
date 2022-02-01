@@ -66,6 +66,19 @@ void sa_update_time(Sokoban *level) {
     level->time_elapsed = time(NULL) - ct;
 }
 
+bool sa_copy_level(Sokoban *level, Sokoban *target) {
+    if (level == NULL) return NULL;
+    memcpy(target->board, level->board, level->width * level->height);
+    target->crates_left = level->crates_left;
+    target->height = level->height;
+    target->width = level->width;
+    target->player_x = level->player_x;
+    target->player_y = level->player_y;
+    target->time_elapsed = level->time_elapsed;
+    target->time_start = level->time_start;
+    return true;
+}
+
 bool get_delta(Direction d, int *dx, int *dy) {
     switch (d) {
             case UP: *dx = 0; *dy = 1; break;
@@ -83,7 +96,7 @@ bool is_in_bound(Sokoban *s, int x, int y) {
 
 int swap(Sokoban *s, int x, int y, Direction d) {
     char *nf, *cf = board_get_field_at(s, x, y);
-    int nx, ny;
+    int nx, ny, ret_val = 2;
     if (!get_delta(d, &nx, &ny)) return 0;
     nx = x + nx; ny = y + ny;
     if (*cf == EMPTY || *cf == DEST) return 1;
@@ -92,14 +105,14 @@ int swap(Sokoban *s, int x, int y, Direction d) {
 
     switch (*cf) {
         case PLAYER:
-            if (!swap(s, nx, ny, d)) return 0;
+            if (!(ret_val = swap(s, nx, ny, d))) return 0;
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
             *cf = EMPTY;
             break;
         case PLAYER_ON_DEST:
-            if (!swap(s, nx, ny, d)) return 0;
+            if (!(ret_val = swap(s, nx, ny, d))) return 0;
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
@@ -145,6 +158,7 @@ bool move_player(Sokoban *s, Direction d, int changed_fields[3]) {
         changed_fields[1] = s->player_x + s->player_y * s->width;
         if (cf == 2)
             changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
+        printf("%d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
         return true;
     }
     return false;

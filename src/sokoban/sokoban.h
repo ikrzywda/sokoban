@@ -39,6 +39,7 @@ void sokoban_print(Sokoban *s);
 int sa_coordinate_to_index(Sokoban *level, int x, int y);
 
 void sa_update_time(Sokoban *level);
+bool sa_copy_level(Sokoban *level, Sokoban *target);
 
 bool get_delta(Direction d, int *dx, int *dy);
 bool is_in_bound(Sokoban *s, int x, int y);
