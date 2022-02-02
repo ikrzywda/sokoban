@@ -116,7 +116,6 @@ void _sg_restart_game(GtkWidget *widget, gpointer data) {
 void _sg_abandon_game(GtkWidget *widget, gpointer data){
     GList *children, *i;
     GtkWidget *master_box = (GtkWidget*)data;
-
     gtk_container_foreach(GTK_CONTAINER(master_box), (GtkCallback)gtk_widget_destroy,
                           NULL);
 }
@@ -196,4 +195,39 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
     g_signal_connect(G_OBJECT(button_abandon), "clicked", 
                      G_CALLBACK(_sg_abandon_game), box_master);                     
     g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
+}
+
+GtkWidget *sg_game_window(SokobanGame *game) {
+
+    GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    GtkWidget *box_controls = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+
+    GtkWidget *game_board = gtk_grid_new();
+    GtkWidget *button_restart = gtk_button_new_with_label("RESTART");
+    GtkWidget *button_save = gtk_button_new_with_label("SAVE & EXIT");
+    GtkWidget *button_abandon = gtk_button_new_with_label("ABANDON");
+
+    for (int i = 0; i < game->data->height; ++i) {
+        for (int j = 0; j < game->data->width; ++j) {
+            gtk_grid_attach(GTK_GRID(game_board), game->tiles[i + game->data->width * j],
+            i, j, 1, 1);
+        }
+    }
+
+    gtk_box_pack_start(GTK_BOX(box_controls), game->label_crates, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), game->label_time, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), game->label_moves, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button_restart, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button_save, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_controls), button_abandon, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_master), box_controls, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_master), game_board, FALSE, TRUE, 10);
+
+    g_signal_connect(G_OBJECT(button_restart), "clicked", 
+                     G_CALLBACK(_sg_restart_game), game);                     
+    g_signal_connect(G_OBJECT(button_abandon), "clicked", 
+                     G_CALLBACK(_sg_abandon_game), box_master);                     
+    g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
+    
+    return box_master;
 }

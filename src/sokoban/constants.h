@@ -17,6 +17,12 @@ static const char *const kAssetPath[] = {
     "assets/error.png",
 };
 
+static const char *const kMasterStackIDs[] = {
+    "main menu",
+    "game screen",
+    "end screen",
+};
+
 typedef enum AssetIndex {
     ASSET_FLOOR = 0,
     ASSET_WALL = 1,
@@ -27,16 +33,5 @@ typedef enum AssetIndex {
     ASSET_DEST = 6,
     ASSET_ERROR = 7,
 } AssetIndex;
-
-static const char *const kLevelPath[] = {
-    "levels/1.txt",
-    "levels/2.txt",
-    "levels/3.txt",
-    "levels/4.txt",
-    "levels/5.txt",
-    "levels/6.txt",
-    "levels/dest.png",
-    "levels/error.png",
-};
 
 #endif

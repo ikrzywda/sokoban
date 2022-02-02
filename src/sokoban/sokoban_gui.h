@@ -34,4 +34,6 @@ void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data);
 
 void sg_init_game_window(GtkWidget *window, Sokoban *level);
 
+GtkWidget *sg_game_window(SokobanGame *game);
+
 #endif
