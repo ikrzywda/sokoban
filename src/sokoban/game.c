@@ -1,24 +1,24 @@
 #include "game.h"
 
-GLevelSelectData *gm_level_select_data_init(int index, 
-                                            SokobanGame *ginst, int *sig) {
+GLevelSelectData *gm_level_select_data_init(int index, GManager *gm) {
+
     GLevelSelectData *new = malloc(sizeof(GLevelSelectData));
     new->level_path_index = index;
-    new->game_instance = ginst;
-    new->sig = sig;
+    new->gm = gm;
 
     return new;
 }
 
 void _gm_select_level(GtkWidget *widget, gpointer data) {
     GLevelSelectData *blueprint = (GLevelSelectData*)data;
+    GManager *gm = blueprint->gm;
 
     Sokoban *s;
     FILE *f;
     char src[50], buffer[1000], c;
-    int i = 0;
+    int i = 0, index = blueprint->level_path_index;
 
-    sprintf(src, "levels/%d.txt", blueprint->level_path_index);
+    sprintf(src, "levels/%d.txt", index);
     f = fopen(src, "r");
     printf(src);
     
@@ -29,8 +29,13 @@ void _gm_select_level(GtkWidget *widget, gpointer data) {
         s = sokoban_init_from_buffer(buffer);
     }
     
-    blueprint->game_instance = sg_sokoban_game_init(s);
-    *(blueprint->sig) = END_SCREEN;
+    gm->game_instance = sg_sokoban_game_init(s);
+    gm->gui_state = GAME;
+    sg_game_window(gm->game_instance, gm->box_game);
+
+    g_signal_connect (G_OBJECT (gm->window_master), "key_press_event",
+                     G_CALLBACK (sg_handle_keypress), gm->game_instance); 
+
 }
 
 
@@ -41,7 +46,7 @@ void _gm_update_widgets(gpointer *data) {
     gtk_widget_show_all(gm->window_master);
 }
 
-GtkWidget *gm_menu_init(int *callback, SokobanGame *game_instance) {
+GtkWidget *gm_menu_init(GManager *gm) {
 
     GtkWidget *lvl_selectors[LEVEL_COUNT];
     GLevelSelectData *lvl_selectors_data[LEVEL_COUNT];
@@ -57,8 +62,7 @@ GtkWidget *gm_menu_init(int *callback, SokobanGame *game_instance) {
     for (int i = 0; i < LEVEL_COUNT; ++i) {
         sprintf(buffer, "%d", i);
         lvl_selectors[i] = gtk_button_new_with_label(buffer);        
-        lvl_selectors_data[i] = gm_level_select_data_init(i, game_instance, 
-                callback);
+        lvl_selectors_data[i] = gm_level_select_data_init(i, gm);
         g_signal_connect(lvl_selectors[i], "clicked",
                 G_CALLBACK(_gm_select_level), lvl_selectors_data[i]);
     }
@@ -66,7 +70,7 @@ GtkWidget *gm_menu_init(int *callback, SokobanGame *game_instance) {
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 4; ++j) {
             gtk_grid_attach(GTK_GRID(lvl_selector_grid), lvl_selectors[j + i * 4], 
-                            i, j, 2, 2);
+                            i, j, 1, 1);
         }
     }
 
@@ -88,8 +92,8 @@ GManager *gm_game_manager_init(GtkWidget *window) {
     new->gui_state = MAIN_MENU;
     new->window_master = window;
     new->stack_master = gtk_stack_new();
-    new->box_game = NULL;
-    new->box_menu = gm_menu_init(&(new->gui_state), new->game_instance);
+    new->box_game = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    new->box_menu = gm_menu_init(new);
     new->box_endscreen = gm_endscreen_init(&(new->gui_state));
 
     gtk_stack_add_named(GTK_STACK(new->stack_master), new->box_endscreen,

@@ -14,6 +14,7 @@ int main(int argc, char **argv) {
 
     gtk_init (&argc, &argv);
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_widget_add_events(window, GDK_KEY_PRESS_MASK);
     //SokobanGame *game_data = sg_sokoban_game_init(s);
     //GtkWidget *game = sg_game_window(game_data);

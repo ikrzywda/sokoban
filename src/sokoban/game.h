@@ -20,12 +20,6 @@ typedef enum GSignal {
     END_SCREEN = 2,
 } GSignal;
 
-typedef struct GLevelSelectData {
-    int level_path_index;
-    int *sig;
-    SokobanGame *game_instance;
-} GLevelSelectData;
-
 typedef struct GManager {
     SokobanGame *game_instance;
     int gui_state;
@@ -36,13 +30,18 @@ typedef struct GManager {
     GtkWidget *box_endscreen;
 } GManager;
 
-GLevelSelectData *gm_level_select_data_init(int index, 
-                                            SokobanGame *ginst, int *sig);
+typedef struct GLevelSelectData {
+    int level_path_index;
+    GManager *gm;
+} GLevelSelectData;
+
+
+GLevelSelectData *gm_level_select_data_init(int index, GManager *gm);
 
 void _gm_select_level(GtkWidget *widget, gpointer data);
 void _gm_update_widgets(gpointer *data);
 
-GtkWidget *gm_menu_init(int *callback, SokobanGame *game_instance);
+GtkWidget *gm_menu_init(GManager *gm);
 GtkWidget *gm_endscreen_init(int *callback);
 
 GManager *gm_game_manager_init(GtkWidget *window);

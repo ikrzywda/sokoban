@@ -197,9 +197,9 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
     g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
 }
 
-GtkWidget *sg_game_window(SokobanGame *game) {
+void sg_game_window(SokobanGame *game, GtkWidget *box_master) {
 
-    GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    //GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     GtkWidget *box_controls = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 
     GtkWidget *game_board = gtk_grid_new();
@@ -229,5 +229,5 @@ GtkWidget *sg_game_window(SokobanGame *game) {
                      G_CALLBACK(_sg_abandon_game), box_master);                     
     g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
     
-    return box_master;
+    //return box_master;
 }
