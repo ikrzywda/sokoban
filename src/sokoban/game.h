@@ -10,10 +10,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-// master struct containing the game and signals for handling 
-// all actions - provides all data to mutate the master window
-// use gtkstack here? 
-
 typedef enum GSignal {
     MAIN_MENU = 0,
     GAME = 1,
@@ -23,6 +19,7 @@ typedef enum GSignal {
 typedef struct GManager {
     SokobanGame *game_instance;
     int gui_state;
+    bool box_game_empty;
     GtkWidget *window_master;
     GtkWidget *stack_master;
     GtkWidget *box_game;
@@ -35,14 +32,17 @@ typedef struct GLevelSelectData {
     GManager *gm;
 } GLevelSelectData;
 
-
+void gm_clear_box(GtkWidget *widget);
 GLevelSelectData *gm_level_select_data_init(int index, GManager *gm);
 
 void _gm_select_level(GtkWidget *widget, gpointer data);
+void _gm_return_to_menu(GtkWidget *widget, gpointer data);
 void _gm_update_widgets(gpointer *data);
+void _gm_abandon_game(GtkWidget *widget, gpointer data);
 
 GtkWidget *gm_menu_init(GManager *gm);
-GtkWidget *gm_endscreen_init(int *callback);
+GtkWidget *gm_endscreen_init(GManager *gm);
+void gm_game_window(SokobanGame *game, GManager *gm);
 
 GManager *gm_game_manager_init(GtkWidget *window);
 

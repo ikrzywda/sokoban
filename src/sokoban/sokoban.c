@@ -42,6 +42,13 @@ Sokoban *sokoban_init_from_buffer(char *buffer) {
     return lvl;
 }
 
+bool sa_sokoban_free(Sokoban *level) {
+    if (level == NULL) return false;
+    free(level->board);
+    free(level);
+    return true;
+}
+
 void sokoban_print(Sokoban *s) {
     printf("width: %d, height: %d\n", s->width, s->height);
     printf("player: (%d, %d)\n", s->player_x, s->player_y);

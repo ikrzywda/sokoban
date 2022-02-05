@@ -29,11 +29,10 @@ void _sg_restart_game(GtkWidget *widget, gpointer data);
 void _sg_abandon_game(GtkWidget *widget, gpointer data);
 
 SokobanGame *sg_sokoban_game_init(Sokoban *level);
+void sg_sokoban_game_update(Sokoban *level, SokobanGame *game);
 
 void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data);
 
 void sg_init_game_window(GtkWidget *window, Sokoban *level);
-
-void sg_game_window(SokobanGame *game, GtkWidget *box_master);
 
 #endif

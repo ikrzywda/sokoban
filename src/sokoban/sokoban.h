@@ -35,6 +35,8 @@ typedef struct Sokoban {
 
 Sokoban *sokoban_init(int width, int height);
 Sokoban *sokoban_init_from_buffer(char *buffer);
+bool sa_sokoban_free(Sokoban *level);
+
 void sokoban_print(Sokoban *s);
 int sa_coordinate_to_index(Sokoban *level, int x, int y);
 
