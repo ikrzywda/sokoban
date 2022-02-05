@@ -21,6 +21,7 @@ int sg_field_type_to_asset_index(char field);
 
 void generate_assets(GdkPixbuf *assets[ASSET_COUNT]);
 GtkWidget **sg_init_tiles(GdkPixbuf *assets[ASSET_COUNT], Sokoban *level);
+void sg_print_tiles(SokobanGame *game);
 void sg_tiles_update(SokobanGame *game, int changed_fields[3]);
 void sg_tiles_refresh(SokobanGame *game);
 

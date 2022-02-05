@@ -65,6 +65,14 @@ GtkWidget **sg_init_tiles(GdkPixbuf *assets[ASSET_COUNT], Sokoban *level) {
     return tiles;
 }
 
+void sg_print_tiles(SokobanGame *game) {
+    int size = game->data->width * game->data->height;
+
+    for (int i = 0; i < size; ++i) {
+        printf("%d: %p\n", i, game->tiles[i]);
+    }
+}
+
 void sg_tiles_refresh(SokobanGame *game) {
     int size = game->data->width * game->data->height;
     GdkPixbuf *pixbuf;
@@ -78,12 +86,13 @@ void sg_tiles_refresh(SokobanGame *game) {
 }
 
 void sg_tiles_update(SokobanGame *game, int changed_fields[3]) {
+    int size = game->data->width * game->data->height;
     char buffer[30];
     GdkPixbuf *pixbuf;
     int asset_index;
     char *board = game->data->board;
     for (int i = 0; i < 3; ++i) {
-        if (changed_fields > 0) {
+        if (changed_fields[i] > 0 && changed_fields[i] < size) {
             asset_index = sg_field_type_to_asset_index(board[changed_fields[i]]);
             pixbuf = game->assets[asset_index];
             gtk_image_set_from_pixbuf(GTK_IMAGE(game->tiles[changed_fields[i]]), pixbuf);
@@ -161,8 +170,11 @@ void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data) {
         default: return;
     };
 
-    if (move_player(game->data, d, changed_fields))
+    if (move_player(game->data, d, changed_fields)) {
         sg_tiles_update(game, changed_fields);
+        sokoban_print(game->data);
+        printf("in: %d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
+    }
 }
 
 void sg_init_game_window(GtkWidget *window, Sokoban *level) {

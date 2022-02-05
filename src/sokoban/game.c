@@ -46,7 +46,7 @@ void _gm_select_level(GtkWidget *widget, gpointer data) {
     } else {
         sg_sokoban_game_update(s, gm->game_instance);
     }
-
+    sg_print_tiles(gm->game_instance);
     gm->gui_state = GAME;
 }
 

@@ -88,12 +88,12 @@ bool sa_copy_level(Sokoban *level, Sokoban *target) {
 
 bool get_delta(Direction d, int *dx, int *dy) {
     switch (d) {
-            case UP: *dx = 0; *dy = 1; break;
-            case DOWN: *dx = 0; *dy = -1; break;
-            case LEFT: *dx = -1; *dy = 0; break;
-            case RIGHT: *dx = 1; *dy = 0; break;
-            default: return false;
-        };
+        case UP: *dx = 0; *dy = 1; break;
+        case DOWN: *dx = 0; *dy = -1; break;
+        case LEFT: *dx = -1; *dy = 0; break;
+        case RIGHT: *dx = 1; *dy = 0; break;
+        default: return false;
+    };
     return true;
 }
 
@@ -113,6 +113,7 @@ int swap(Sokoban *s, int x, int y, Direction d) {
     switch (*cf) {
         case PLAYER:
             if (!(ret_val = swap(s, nx, ny, d))) return 0;
+            printf("\n%d\n", ret_val);
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
@@ -163,9 +164,11 @@ bool move_player(Sokoban *s, Direction d, int changed_fields[3]) {
         s->player_x += dx;
         s->player_y += dy;
         changed_fields[1] = s->player_x + s->player_y * s->width;
-        if (cf == 2)
+        if (cf == 2) {
             changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
-        printf("%d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
+            printf("three: %d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
+        } else
+            printf("two: %d %d\n", changed_fields[0], changed_fields[1]);
         return true;
     }
     return false;
