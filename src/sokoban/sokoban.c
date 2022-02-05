@@ -21,12 +21,20 @@ Sokoban *sokoban_init(int width, int height, int level_index) {
     return new_instance;
 }
 
-
-Sokoban *sokoban_init_from_buffer(char *buffer, int level_index) {    
+// load buffer in this function, make designated helper
+Sokoban *sokoban_init_from_buffer(int level_index) {    
     int x, y, offset = 0, row = 0;
     Sokoban *lvl;
+    char path[40], *buffer, *line, c;
+    if (sa_save_exists(level_index)) {
+        sprintf(path, "saves/%d.txt", level_index);
+    } else {
+        sprintf(path, "levels/%d.txt", level_index);
+    }
+    buffer = ut_file_buffer(path);
+
     if (!parse_board(buffer, &x, &y)) return NULL;
-    char *line = strtok(buffer, "\n"), c;
+    line = strtok(buffer, "\n");
     lvl = sokoban_init(x, y, level_index);
 
     while (line != NULL) {
@@ -42,6 +50,7 @@ Sokoban *sokoban_init_from_buffer(char *buffer, int level_index) {
         line = strtok(NULL, "\n");
     }
     sa_read_metadata(lvl);
+    free(buffer);
     return lvl;
 }
 
@@ -106,7 +115,7 @@ bool is_in_bound(Sokoban *s, int x, int y) {
 
 int swap(Sokoban *s, int x, int y, Direction d) {
     char *nf, *cf = board_get_field_at(s, x, y);
-    int nx, ny, ret_val = 2;
+    int nx, ny;
     if (!get_delta(d, &nx, &ny)) return 0;
     nx = x + nx; ny = y + ny;
     if (*cf == EMPTY || *cf == DEST) return 1;
@@ -115,14 +124,14 @@ int swap(Sokoban *s, int x, int y, Direction d) {
 
     switch (*cf) {
         case PLAYER:
-            if (!(ret_val = swap(s, nx, ny, d))) return 0;
+            if (!swap(s, nx, ny, d)) return 0;
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
             *cf = EMPTY;
             break;
         case PLAYER_ON_DEST:
-            if (!(ret_val = swap(s, nx, ny, d))) return 0;
+            if (!swap(s, nx, ny, d)) return 0;
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
@@ -208,8 +217,8 @@ char *board_get_field_at(Sokoban *s, int x, int y) {
 
 bool sa_is_new_best_moves(Sokoban *level) {
     int current = level->moves;
-    int best = level->best_moves;
-    if (current > best) {
+    int best = level->best_moves < 0 ? level->moves : level->best_moves;
+    if (current <= best) {
         level->best_moves = current;
         return true;
     }
@@ -218,12 +227,18 @@ bool sa_is_new_best_moves(Sokoban *level) {
 
 bool sa_is_new_best_time(Sokoban *level) {
     int current = level->time_elapsed;
-    int best = level->best_time;
-    if (current > best) {
+    int best = level->best_time < 0 ? level->time_elapsed : level->best_time;
+    if (current <= best) {
         level->best_time = current;
         return true;
     }
     return false;
+}
+
+bool sa_save_exists(int level_index) {
+    char path[30];
+    sprintf(path, "saves/%d.txt", level_index);
+    return ut_file_exists(path);
 }
 
 void sa_read_metadata(Sokoban *level) {
@@ -275,7 +290,6 @@ void sa_level_progress_to_file(Sokoban *level) {
         }
         fputc('\n', tgt);
     }
-    fputc('\n', tgt);
     fclose(tgt);
 }
 

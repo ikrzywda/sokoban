@@ -1,6 +1,8 @@
 #ifndef SOKOBAN_H
 #define SOKOBAN_H
 
+#include "utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -36,7 +38,7 @@ typedef struct Sokoban {
 
 
 Sokoban *sokoban_init(int width, int height, int level_index);
-Sokoban *sokoban_init_from_buffer(char *buffer, int level_index);
+Sokoban *sokoban_init_from_buffer(int level_index);
 bool sa_sokoban_free(Sokoban *level);
 
 void sokoban_print(Sokoban *s);
@@ -57,6 +59,7 @@ char *board_get_field_at(Sokoban *s, int x, int y);
 
 bool sa_is_new_best_moves(Sokoban *level);
 bool sa_is_new_best_time(Sokoban *level);
+bool sa_save_exists(int level_index);
 
 void sa_read_metadata(Sokoban *level);
 void sa_save_level(Sokoban *level);

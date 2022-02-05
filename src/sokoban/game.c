@@ -21,20 +21,11 @@ void _gm_select_level(GtkWidget *widget, gpointer data) {
     GManager *gm = blueprint->gm;
 
     Sokoban *s;
-    FILE *f;
     char src[50], buffer[1000], c;
     int i = 0, index = blueprint->level_path_index;
 
-    sprintf(src, "levels/%d.txt", index);
-    f = fopen(src, "r");
-    printf(src);
-    
-
-    if (f) {
-        while ((c = fgetc(f)) != EOF) buffer[i++] = c;
-        buffer[i] = '\0';
-        s = sokoban_init_from_buffer(buffer, index);
-    }
+    s = sokoban_init_from_buffer(index);
+    sokoban_print(s);
    
     if (gm->box_game_empty) {
         gm->game_instance = sg_sokoban_game_init(s);
@@ -46,7 +37,6 @@ void _gm_select_level(GtkWidget *widget, gpointer data) {
     } else {
         sg_sokoban_game_update(s, gm->game_instance);
     }
-    sg_print_tiles(gm->game_instance);
     gm->gui_state = GAME;
 }
 
@@ -58,7 +48,10 @@ void _gm_return_to_menu(GtkWidget *widget, gpointer data) {
 void _gm_update_widgets(gpointer *data) {
     GManager *gm = (GManager*)data;
     GtkStack *master = GTK_STACK(gm->stack_master);
+    char buffer[20];
     if (gm->gui_state == GAME && !gm->game_instance->data->crates_left) {
+        sprintf(buffer, "saves/%d.txt", gm->game_instance->data->level_index);
+        ut_remove_file(buffer);
         gm_game_over_endscreen(gm);
         gm->gui_state = END_SCREEN;
     }
@@ -87,15 +80,13 @@ void gm_game_over_endscreen(GManager *gm) {
     char buffer[40];
     GtkWidget *success = gtk_image_new_from_file("assets/sokoban_success.png");
     GtkWidget *button_return_to_menu = gtk_button_new_with_label("MAIN MENU");
-    
-    
 
     sprintf(buffer, "%s: %d", 
             sa_is_new_best_moves(gm->game_instance->data) ? "moves (new best)" : "moves",
             gm->game_instance->data->moves);
     GtkWidget *label_moves = gtk_label_new_with_mnemonic(buffer);
     sprintf(buffer, "%s: %d", 
-            sa_is_new_best_time(gm->game_instance->data) ? "time (new best)" : "moves",
+            sa_is_new_best_time(gm->game_instance->data) ? "time (new best)" : "time",
             gm->game_instance->data->time_elapsed);
     GtkWidget *label_time = gtk_label_new_with_mnemonic(buffer);
     sprintf(buffer, "best moves: %d", gm->game_instance->data->best_moves);
