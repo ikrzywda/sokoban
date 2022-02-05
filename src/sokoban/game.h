@@ -40,6 +40,8 @@ void _gm_return_to_menu(GtkWidget *widget, gpointer data);
 void _gm_update_widgets(gpointer *data);
 void _gm_abandon_game(GtkWidget *widget, gpointer data);
 
+void gm_game_over_endscreen(GManager *gm);
+
 GtkWidget *gm_menu_init(GManager *gm);
 GtkWidget *gm_endscreen_init(GManager *gm);
 void gm_game_window(SokobanGame *game, GManager *gm);

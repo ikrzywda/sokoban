@@ -217,3 +217,6 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
     g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
 }
 
+void sg_save_game(SokobanGame *game) {
+    return;
+}

@@ -164,11 +164,11 @@ bool move_player(Sokoban *s, Direction d, int changed_fields[3]) {
         s->player_x += dx;
         s->player_y += dy;
         changed_fields[1] = s->player_x + s->player_y * s->width;
-        if (cf == 2) {
+        //if (cf == 2) {
             changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
-            printf("three: %d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
-        } else
-            printf("two: %d %d\n", changed_fields[0], changed_fields[1]);
+            //printf("three: %d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
+        //} else
+            //printf("two: %d %d\n", changed_fields[0], changed_fields[1]);
         return true;
     }
     return false;

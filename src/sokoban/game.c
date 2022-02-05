@@ -59,6 +59,7 @@ void _gm_update_widgets(gpointer *data) {
     GManager *gm = (GManager*)data;
     GtkStack *master = GTK_STACK(gm->stack_master);
     if (gm->gui_state == GAME && !gm->game_instance->data->crates_left) {
+        gm_game_over_endscreen(gm);
         gm->gui_state = END_SCREEN;
     }
     gtk_stack_set_visible_child_name(master, kMasterStackIDs[gm->gui_state]);
@@ -70,10 +71,33 @@ void _gm_abandon_game(GtkWidget *widget, gpointer data) {
     gm->gui_state = END_SCREEN;
 }
 
+void gm_game_over_endscreen(GManager *gm) {
+    gm_clear_box(gm->box_endscreen);
+    GtkWidget *box = gm->box_endscreen;
+    char buffer[20];
+    GtkWidget *success = gtk_image_new_from_file("assets/sokoban_success.png");
+    GtkWidget *button_return_to_menu = gtk_button_new_with_label("MAIN MENU");
+
+    sprintf(buffer, "moves: %d", gm->game_instance->data->moves);
+    GtkWidget *label_moves = gtk_label_new_with_mnemonic(buffer);
+    sprintf(buffer, "time: %d", gm->game_instance->data->time_elapsed);
+    GtkWidget *label_time = gtk_label_new_with_mnemonic(buffer);
+
+    gtk_box_pack_start(GTK_BOX(box), success, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), label_moves, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), label_time, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), button_return_to_menu, 
+                       FALSE, TRUE, 10);
+    g_signal_connect(button_return_to_menu, "clicked",
+                     G_CALLBACK(_gm_return_to_menu), gm);
+
+}
+
 GtkWidget *gm_menu_init(GManager *gm) {
 
     GtkWidget *lvl_selectors[LEVEL_COUNT];
     GLevelSelectData *lvl_selectors_data[LEVEL_COUNT];
+    GtkWidget *title = gtk_image_new_from_file("assets/sokoban_title.png");
     GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     GtkWidget *lvl_selector_grid = gtk_grid_new();
     char buffer[20];
@@ -98,6 +122,7 @@ GtkWidget *gm_menu_init(GManager *gm) {
         }
     }
 
+    gtk_box_pack_start(GTK_BOX(box_master), title, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box_master), lvl_selector_grid, FALSE, TRUE, 10);
 
     return box_master;
