@@ -23,6 +23,10 @@ static const char *const kMasterStackIDs[] = {
     "end screen",
 };
 
+static const char *kLevelsDir = "levels/";
+static const char *kSavesDir = "saves/";
+static const char *kMetaDataDir = "meta/";
+
 typedef enum AssetIndex {
     ASSET_FLOOR = 0,
     ASSET_WALL = 1,

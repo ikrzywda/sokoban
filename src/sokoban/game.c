@@ -33,7 +33,7 @@ void _gm_select_level(GtkWidget *widget, gpointer data) {
     if (f) {
         while ((c = fgetc(f)) != EOF) buffer[i++] = c;
         buffer[i] = '\0';
-        s = sokoban_init_from_buffer(buffer);
+        s = sokoban_init_from_buffer(buffer, index);
     }
    
     if (gm->box_game_empty) {
@@ -68,29 +68,69 @@ void _gm_update_widgets(gpointer *data) {
 
 void _gm_abandon_game(GtkWidget *widget, gpointer data) {
     GManager *gm = (GManager*)data;
+    gm_exit_endscreen(gm, true);
+    gm->gui_state = END_SCREEN;
+}
+
+void _gm_save_game(GtkWidget *widget, gpointer data) {
+    GManager *gm = (GManager*)data;
+    char save_path[40];
+    sprintf(save_path, "saves/%d.txt", gm->game_instance->data->level_index);
+    sa_save_level(gm->game_instance->data);
+    gm_exit_endscreen(gm, false);
     gm->gui_state = END_SCREEN;
 }
 
 void gm_game_over_endscreen(GManager *gm) {
     gm_clear_box(gm->box_endscreen);
     GtkWidget *box = gm->box_endscreen;
-    char buffer[20];
+    char buffer[40];
     GtkWidget *success = gtk_image_new_from_file("assets/sokoban_success.png");
     GtkWidget *button_return_to_menu = gtk_button_new_with_label("MAIN MENU");
+    
+    
 
-    sprintf(buffer, "moves: %d", gm->game_instance->data->moves);
+    sprintf(buffer, "%s: %d", 
+            sa_is_new_best_moves(gm->game_instance->data) ? "moves (new best)" : "moves",
+            gm->game_instance->data->moves);
     GtkWidget *label_moves = gtk_label_new_with_mnemonic(buffer);
-    sprintf(buffer, "time: %d", gm->game_instance->data->time_elapsed);
+    sprintf(buffer, "%s: %d", 
+            sa_is_new_best_time(gm->game_instance->data) ? "time (new best)" : "moves",
+            gm->game_instance->data->time_elapsed);
     GtkWidget *label_time = gtk_label_new_with_mnemonic(buffer);
+    sprintf(buffer, "best moves: %d", gm->game_instance->data->best_moves);
+    GtkWidget *label_best_moves = gtk_label_new_with_mnemonic(buffer);
+    sprintf(buffer, "best time: %d", gm->game_instance->data->best_time);
+    GtkWidget *label_best_time = gtk_label_new_with_mnemonic(buffer);
 
     gtk_box_pack_start(GTK_BOX(box), success, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box), label_moves, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box), label_time, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), label_best_moves, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), label_best_time, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box), button_return_to_menu, 
                        FALSE, TRUE, 10);
     g_signal_connect(button_return_to_menu, "clicked",
                      G_CALLBACK(_gm_return_to_menu), gm);
+    sa_level_meta_to_file(gm->game_instance->data);
+}
 
+void gm_exit_endscreen(GManager *gm, bool abandoned) {
+    gm_clear_box(gm->box_endscreen);
+    GtkWidget *box = gm->box_endscreen;
+    char buffer[20];
+    GtkWidget *game_over = gtk_image_new_from_file("assets/sokoban_game_over.png");
+    GtkWidget *button_return_to_menu = gtk_button_new_with_label("MAIN MENU");
+
+    sprintf(buffer, "%s", abandoned ? "Game Abandoned" : "Progress Saved!");
+    GtkWidget *label_message = gtk_label_new_with_mnemonic(buffer);
+
+    gtk_box_pack_start(GTK_BOX(box), game_over, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), label_message, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box), button_return_to_menu, 
+                       FALSE, TRUE, 10);
+    g_signal_connect(button_return_to_menu, "clicked",
+                     G_CALLBACK(_gm_return_to_menu), gm);
 }
 
 GtkWidget *gm_menu_init(GManager *gm) {
@@ -172,6 +212,8 @@ void gm_game_window(SokobanGame *game, GManager *gm) {
                      G_CALLBACK(_sg_restart_game), game);                     
     g_signal_connect(G_OBJECT(button_abandon), "clicked", 
                      G_CALLBACK(_gm_abandon_game), gm);                     
+    g_signal_connect(G_OBJECT(button_save), "clicked", 
+                     G_CALLBACK(_gm_save_game), gm);                     
     g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
     
     gm->box_game_empty = false;

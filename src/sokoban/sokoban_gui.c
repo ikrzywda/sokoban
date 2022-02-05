@@ -123,7 +123,7 @@ void _sg_restart_game(GtkWidget *widget, gpointer data) {
 }
 
 void _sg_abandon_game(GtkWidget *widget, gpointer data){
-    GList *children, *i;
+    GList *children;
     GtkWidget *master_box = (GtkWidget*)data;
     gtk_container_foreach(GTK_CONTAINER(master_box), (GtkCallback)gtk_widget_destroy,
                           NULL);
@@ -132,7 +132,7 @@ void _sg_abandon_game(GtkWidget *widget, gpointer data){
 SokobanGame *sg_sokoban_game_init(Sokoban *level) {
     SokobanGame *g = malloc(sizeof(SokobanGame));
     g->data = level;
-    g->original = sokoban_init(level->height, level->width);
+    g->original = sokoban_init(level->height, level->width, level->level_index);
     if (!sa_copy_level(level, g->original)) return NULL;
     generate_assets(g->assets);
     g->tiles = sg_init_tiles(g->assets, level);
@@ -172,8 +172,6 @@ void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data) {
 
     if (move_player(game->data, d, changed_fields)) {
         sg_tiles_update(game, changed_fields);
-        sokoban_print(game->data);
-        printf("in: %d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
     }
 }
 
@@ -217,6 +215,3 @@ void sg_init_game_window(GtkWidget *window, Sokoban *level) {
     g_timeout_add(1000, (GSourceFunc)_sg_time_label_update, (gpointer)game);
 }
 
-void sg_save_game(SokobanGame *game) {
-    return;
-}

@@ -1,12 +1,13 @@
 #include "sokoban.h"
 
 
-Sokoban *sokoban_init(int width, int height) {
+Sokoban *sokoban_init(int width, int height, int level_index) {
     Sokoban *new_instance = malloc(sizeof(Sokoban));
 
     new_instance->width = width;
     new_instance->height = height;
     new_instance->board = malloc(width * height);
+    new_instance->level_index = level_index;
     memset(new_instance->board, EMPTY, sizeof(char) * width * height);
     new_instance->player_x = -1;
     new_instance->player_y = -1;
@@ -14,17 +15,19 @@ Sokoban *sokoban_init(int width, int height) {
     new_instance->moves = 0;
     new_instance->time_start = time(NULL);
     new_instance->time_elapsed = 0;
+    new_instance->best_time = -1;
+    new_instance->best_moves = -1;
 
     return new_instance;
 }
 
 
-Sokoban *sokoban_init_from_buffer(char *buffer) {    
+Sokoban *sokoban_init_from_buffer(char *buffer, int level_index) {    
     int x, y, offset = 0, row = 0;
     Sokoban *lvl;
     if (!parse_board(buffer, &x, &y)) return NULL;
     char *line = strtok(buffer, "\n"), c;
-    lvl = sokoban_init(x, y);
+    lvl = sokoban_init(x, y, level_index);
 
     while (line != NULL) {
         while ((c = *line) != '\0') {
@@ -35,10 +38,10 @@ Sokoban *sokoban_init_from_buffer(char *buffer) {
             lvl->board[offset++] = c;
             line++;
         }
-        printf("%s\n", line);
         offset = sa_coordinate_to_index(lvl, 0, ++row);
         line = strtok(NULL, "\n");
     }
+    sa_read_metadata(lvl);
     return lvl;
 }
 
@@ -113,7 +116,6 @@ int swap(Sokoban *s, int x, int y, Direction d) {
     switch (*cf) {
         case PLAYER:
             if (!(ret_val = swap(s, nx, ny, d))) return 0;
-            printf("\n%d\n", ret_val);
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
@@ -164,11 +166,7 @@ bool move_player(Sokoban *s, Direction d, int changed_fields[3]) {
         s->player_x += dx;
         s->player_y += dy;
         changed_fields[1] = s->player_x + s->player_y * s->width;
-        //if (cf == 2) {
-            changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
-            //printf("three: %d %d %d\n", changed_fields[0], changed_fields[1], changed_fields[2]);
-        //} else
-            //printf("two: %d %d\n", changed_fields[0], changed_fields[1]);
+        changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
         return true;
     }
     return false;
@@ -206,4 +204,92 @@ char *board_get_field_at(Sokoban *s, int x, int y) {
         return NULL;
     else 
         return &s->board[x + s->width * y];
+}
+
+bool sa_is_new_best_moves(Sokoban *level) {
+    int current = level->moves;
+    int best = level->best_moves;
+    if (current > best) {
+        level->best_moves = current;
+        return true;
+    }
+    return false;
+}
+
+bool sa_is_new_best_time(Sokoban *level) {
+    int current = level->time_elapsed;
+    int best = level->best_time;
+    if (current > best) {
+        level->best_time = current;
+        return true;
+    }
+    return false;
+}
+
+void sa_read_metadata(Sokoban *level) {
+    char path[40], buffer[100], c, *datapoint;
+    int i = 0;
+    sprintf(path, "saves/%d_meta.txt", level->level_index);
+    
+    FILE *f = fopen(path, "r");
+
+    if (f) {
+        while ((c = fgetc(f)) != EOF) buffer[i++] = c;
+        buffer[i] = '\0';
+    } else {
+        return;
+    }
+
+    datapoint = strtok(buffer, ",");
+    sscanf(datapoint, "%d", &level->best_time);
+    datapoint = strtok(buffer, ",");
+    sscanf(datapoint, "%d", &level->best_moves);
+    datapoint = strtok(buffer, ",");
+    sscanf(datapoint, "%ld", &level->time_elapsed);
+    datapoint = strtok(buffer, ",");
+    sscanf(datapoint, "%d", &level->moves);
+}
+
+void sa_save_level(Sokoban *level) {
+    sa_level_progress_to_file(level);
+    sa_level_meta_to_file(level);
+}
+
+void sa_level_progress_to_file(Sokoban *level) {
+    char target[40];
+    sprintf(target, "saves/%d.txt", level->level_index);
+    FILE *tgt = fopen(target, "r");
+    char *board = level->board;
+    if (tgt) {
+        fclose(tgt);
+        remove(target);
+    }
+    tgt = fopen(target, "w");
+
+    for (int i = 0; i < level->height; ++i) {
+        for (int j = 0; j < level->width; ++j) {
+            if (board[sa_coordinate_to_index(level, j, i)] == EMPTY) 
+                fputc(' ', tgt);
+            else
+                fputc(board[sa_coordinate_to_index(level, j, i)], tgt);
+        }
+        fputc('\n', tgt);
+    }
+    fputc('\n', tgt);
+    fclose(tgt);
+}
+
+void sa_level_meta_to_file(Sokoban *level) {
+    char target[40];
+    sprintf(target, "saves/%d_meta.txt", level->level_index);
+    FILE *tgt = fopen(target, "r");
+    if (tgt) {
+        fclose(tgt);
+        remove(target);
+    }
+    tgt = fopen(target, "w");
+    
+    fprintf(tgt, "%d,%d,%ld,%d\n", level->best_time, level->best_moves, 
+            level->time_elapsed, level->moves);
+    fclose(tgt);
 }

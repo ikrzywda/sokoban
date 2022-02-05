@@ -39,8 +39,10 @@ void _gm_select_level(GtkWidget *widget, gpointer data);
 void _gm_return_to_menu(GtkWidget *widget, gpointer data);
 void _gm_update_widgets(gpointer *data);
 void _gm_abandon_game(GtkWidget *widget, gpointer data);
+void _gm_save_game(GtkWidget *widget, gpointer data);
 
 void gm_game_over_endscreen(GManager *gm);
+void gm_exit_endscreen(GManager *gm, bool abandoned);
 
 GtkWidget *gm_menu_init(GManager *gm);
 GtkWidget *gm_endscreen_init(GManager *gm);
