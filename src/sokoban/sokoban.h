@@ -37,25 +37,24 @@ typedef struct Sokoban {
 } Sokoban;
 
 
-Sokoban *sokoban_init(int width, int height, int level_index);
-Sokoban *sokoban_init_from_buffer(int level_index);
+Sokoban *sa_sokoban_init(int width, int height, int level_index);
+Sokoban *sa_sokoban_init_from_buffer(int level_index);
 bool sa_sokoban_free(Sokoban *level);
 
-void sokoban_print(Sokoban *s);
+void sa_sokoban_print(Sokoban *s);
 int sa_coordinate_to_index(Sokoban *level, int x, int y);
 
 void sa_update_time(Sokoban *level);
 bool sa_copy_level(Sokoban *level, Sokoban *target);
 
-bool get_delta(Direction d, int *dx, int *dy);
-bool is_in_bound(Sokoban *s, int x, int y);
+bool sa_get_delta(Direction d, int *dx, int *dy);
+bool sa_is_in_bound(Sokoban *s, int x, int y);
 
-bool move_player(Sokoban *s, Direction d, int changed_fields[3]);
-bool move_crate(Sokoban *s, Direction d);
-int swap(Sokoban *s, int x, int y, Direction d);
+bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]);
+int sa_swap(Sokoban *s, int x, int y, Direction d);
 
-bool parse_board(char *lvl_buffer, int *x, int *y);
-char *board_get_field_at(Sokoban *s, int x, int y);
+bool sa_parse_board(char *lvl_buffer, int *x, int *y);
+char *sa_board_get_field_at(Sokoban *s, int x, int y);
 
 bool sa_is_new_best_moves(Sokoban *level);
 bool sa_is_new_best_time(Sokoban *level);

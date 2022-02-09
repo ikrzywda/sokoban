@@ -1,7 +1,7 @@
 #include "sokoban.h"
 
 
-Sokoban *sokoban_init(int width, int height, int level_index) {
+Sokoban *sa_sokoban_init(int width, int height, int level_index) {
     Sokoban *new_instance = malloc(sizeof(Sokoban));
 
     new_instance->width = width;
@@ -22,7 +22,7 @@ Sokoban *sokoban_init(int width, int height, int level_index) {
 }
 
 // load buffer in this function, make designated helper
-Sokoban *sokoban_init_from_buffer(int level_index) {    
+Sokoban *sa_sokoban_init_from_buffer(int level_index) {    
     int x, y, offset = 0, row = 0;
     Sokoban *lvl;
     char path[40], *buffer, *line, c;
@@ -33,9 +33,9 @@ Sokoban *sokoban_init_from_buffer(int level_index) {
     }
     buffer = ut_file_buffer(path);
 
-    if (!parse_board(buffer, &x, &y)) return NULL;
+    if (!sa_parse_board(buffer, &x, &y)) return NULL;
     line = strtok(buffer, "\n");
-    lvl = sokoban_init(x, y, level_index);
+    lvl = sa_sokoban_init(x, y, level_index);
 
     while (line != NULL) {
         while ((c = *line) != '\0') {
@@ -61,7 +61,7 @@ bool sa_sokoban_free(Sokoban *level) {
     return true;
 }
 
-void sokoban_print(Sokoban *s) {
+void sa_sokoban_print(Sokoban *s) {
     printf("width: %d, height: %d\n", s->width, s->height);
     printf("player: (%d, %d)\n", s->player_x, s->player_y);
     printf("crates left: %d\n", s->crates_left);
@@ -98,7 +98,7 @@ bool sa_copy_level(Sokoban *level, Sokoban *target) {
     return true;
 }
 
-bool get_delta(Direction d, int *dx, int *dy) {
+bool sa_get_delta(Direction d, int *dx, int *dy) {
     switch (d) {
         case UP: *dx = 0; *dy = 1; break;
         case DOWN: *dx = 0; *dy = -1; break;
@@ -109,29 +109,29 @@ bool get_delta(Direction d, int *dx, int *dy) {
     return true;
 }
 
-bool is_in_bound(Sokoban *s, int x, int y) {
+bool sa_is_in_bound(Sokoban *s, int x, int y) {
     return s->width > x && x >= 0 && s->height > y && y >= 0;
 }
 
-int swap(Sokoban *s, int x, int y, Direction d) {
-    char *nf, *cf = board_get_field_at(s, x, y);
+int sa_swap(Sokoban *s, int x, int y, Direction d) {
+    char *nf, *cf = sa_board_get_field_at(s, x, y);
     int nx, ny;
-    if (!get_delta(d, &nx, &ny)) return 0;
+    if (!sa_get_delta(d, &nx, &ny)) return 0;
     nx = x + nx; ny = y + ny;
     if (*cf == EMPTY || *cf == DEST) return 1;
-    if (!is_in_bound(s, nx, ny)) return 0;
-    nf = board_get_field_at(s, nx, ny);
+    if (!sa_is_in_bound(s, nx, ny)) return 0;
+    nf = sa_board_get_field_at(s, nx, ny);
 
     switch (*cf) {
         case PLAYER:
-            if (!swap(s, nx, ny, d)) return 0;
+            if (!sa_swap(s, nx, ny, d)) return 0;
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
             *cf = EMPTY;
             break;
         case PLAYER_ON_DEST:
-            if (!swap(s, nx, ny, d)) return 0;
+            if (!sa_swap(s, nx, ny, d)) return 0;
             if (*nf == DEST) *nf = PLAYER_ON_DEST;
             else if (*nf == EMPTY) *nf = PLAYER;
             else return 0;
@@ -165,12 +165,12 @@ int swap(Sokoban *s, int x, int y, Direction d) {
 
 // TODO: fix going out of bounds
 
-bool move_player(Sokoban *s, Direction d, int changed_fields[3]) {
+bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]) {
     int dx, dy;
     int cf;
     memset(changed_fields, -1, sizeof(int) * 3);
-    if (!get_delta(d, &dx, &dy)) return false;
-    if ((cf = swap(s, s->player_x, s->player_y, d))) {
+    if (!sa_get_delta(d, &dx, &dy)) return false;
+    if ((cf = sa_swap(s, s->player_x, s->player_y, d))) {
         changed_fields[0] = s->player_x + s->player_y * s->width;
         s->player_x += dx;
         s->player_y += dy;
@@ -181,7 +181,7 @@ bool move_player(Sokoban *s, Direction d, int changed_fields[3]) {
     return false;
 }
 
-bool parse_board(char *lvl_buffer, int *x, int *y) {
+bool sa_parse_board(char *lvl_buffer, int *x, int *y) {
     int height = 0, width = 0;
     int max_width = 0;
     char c;
@@ -208,7 +208,7 @@ bool parse_board(char *lvl_buffer, int *x, int *y) {
     return true;
 }
 
-char *board_get_field_at(Sokoban *s, int x, int y) {
+char *sa_board_get_field_at(Sokoban *s, int x, int y) {
     if (x > s->width || y > s->height) 
         return NULL;
     else 

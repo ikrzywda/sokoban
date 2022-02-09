@@ -24,8 +24,7 @@ void _gm_select_level(GtkWidget *widget, gpointer data) {
     char src[50], buffer[1000], c;
     int i = 0, index = blueprint->level_path_index;
 
-    s = sokoban_init_from_buffer(index);
-    sokoban_print(s);
+    s = sa_sokoban_init_from_buffer(index);
    
     if (gm->box_game_empty) {
         gm->game_instance = sg_sokoban_game_init(s);
@@ -127,6 +126,7 @@ void gm_exit_endscreen(GManager *gm, bool abandoned) {
 GtkWidget *gm_menu_init(GManager *gm) {
 
     GtkWidget *lvl_selectors[LEVEL_COUNT];
+    GtkWidget *button_exit = gtk_button_new_with_label("EXIT");
     GLevelSelectData *lvl_selectors_data[LEVEL_COUNT];
     GtkWidget *title = gtk_image_new_from_file("assets/sokoban_title.png");
     GtkWidget *box_master = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
@@ -152,9 +152,12 @@ GtkWidget *gm_menu_init(GManager *gm) {
                             i, j, 1, 1);
         }
     }
+    g_signal_connect(button_exit, "clicked",
+            gtk_main_quit, NULL);
 
     gtk_box_pack_start(GTK_BOX(box_master), title, FALSE, TRUE, 10);
     gtk_box_pack_start(GTK_BOX(box_master), lvl_selector_grid, FALSE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(box_master), button_exit, FALSE, TRUE, 10);
 
     return box_master;
 }
@@ -169,7 +172,6 @@ GtkWidget *gm_endscreen_init(GManager *gm) {
                        FALSE, TRUE, 10);
     g_signal_connect(button_return_to_menu, "clicked",
                      G_CALLBACK(_gm_return_to_menu), gm);
-
     return box_master;
 }
 

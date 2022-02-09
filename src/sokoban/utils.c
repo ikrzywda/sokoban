@@ -18,7 +18,6 @@ char *ut_file_buffer(char *path) {
 
     while ((c = fgetc(f)) != EOF) buffer[i++] = c;
     buffer[i] = '\0';
-    printf("%s", buffer);
     fclose(f);
     return buffer;
 }
