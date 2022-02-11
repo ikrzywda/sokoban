@@ -240,3 +240,4 @@ GManager *gm_game_manager_init(GtkWidget *window) {
 
     return new;
 }
+

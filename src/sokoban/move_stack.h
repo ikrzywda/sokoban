@@ -11,14 +11,15 @@
 typedef int Move[3];
 
 typedef struct MoveStack {
-    Move *moves;
+    int *moves;
     int top;
     int size;
 } MoveStack;
 
 MoveStack *mv_stack_init();
-bool mv_stack_push(MoveStack *stack, Move *move);
-bool mv_stack_pop(MoveStack *stack, Move *move);
+bool mv_stack_push(MoveStack *stack, int move);
+bool mv_stack_pop(MoveStack *stack, int *move);
 bool mv_stack_free(MoveStack *stack);
+void mv_stack_print(MoveStack *stack);
 
 #endif

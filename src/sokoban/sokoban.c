@@ -17,6 +17,7 @@ Sokoban *sa_sokoban_init(int width, int height, int level_index) {
     new_instance->time_elapsed = 0;
     new_instance->best_time = -1;
     new_instance->best_moves = -1;
+    new_instance->move_history = mv_stack_init();
 
     return new_instance;
 }
@@ -167,17 +168,27 @@ int sa_swap(Sokoban *s, int x, int y, Direction d) {
     return 2;
 }
 
-bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]) {
-    int dx, dy;
-    int cf;
-    memset(changed_fields, -1, sizeof(int) * 3);
+bool sa_move_player(Sokoban *s, Direction d, Move changed_fields, bool revert) {
+    int dx, dy, cf;
     if (!sa_get_delta(d, &dx, &dy)) return false;
+    if (!revert) mv_stack_push(s->move_history, d);
+    memset(changed_fields, -1, sizeof(int) * 3);
     if ((cf = sa_swap(s, s->player_x, s->player_y, d))) {
         changed_fields[0] = s->player_x + s->player_y * s->width;
         s->player_x += dx;
         s->player_y += dy;
         changed_fields[1] = s->player_x + s->player_y * s->width;
         changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
+        return true;
+    }
+    return false;
+}
+
+bool sa_revert_move(Sokoban *s, int *d) {
+    if (s == NULL) return false;
+    if (mv_stack_pop(s->move_history, d)) {
+        if (*d == LEFT || *d == RIGHT) *d = (*d == LEFT) ? RIGHT : LEFT;
+        if (*d == UP || *d == DOWN) *d = (*d == UP) ? DOWN : UP;
         return true;
     }
     return false;

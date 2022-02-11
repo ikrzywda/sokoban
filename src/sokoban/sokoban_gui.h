@@ -1,6 +1,7 @@
 #ifndef SOKOBAN_GUI_H
 #define SOKOBAN_GUI_H
 
+#include "move_stack.h"
 #include "sokoban.h"
 #include "constants.h"
 

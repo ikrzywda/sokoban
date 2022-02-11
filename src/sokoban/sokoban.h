@@ -2,6 +2,7 @@
 #define SOKOBAN_H
 
 #include "utils.h"
+#include "move_stack.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +35,7 @@ typedef struct Sokoban {
     int crates_left, moves;
     time_t time_start, time_elapsed;
     int best_time, best_moves;
+    MoveStack *move_history;
 } Sokoban;
 
 
@@ -50,7 +52,8 @@ bool sa_copy_level(Sokoban *level, Sokoban *target);
 bool sa_get_delta(Direction d, int *dx, int *dy);
 bool sa_is_in_bound(Sokoban *s, int x, int y);
 
-bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]);
+bool sa_move_player(Sokoban *s, Direction d, Move changed_fields, bool revert);
+bool sa_revert_move(Sokoban *s, int *d);
 int sa_swap(Sokoban *s, int x, int y, Direction d);
 
 bool sa_parse_board(char *lvl_buffer, int *x, int *y);
