@@ -21,10 +21,10 @@ typedef enum {
 } FieldType;
 
 typedef enum {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
+    UP = -1,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = -2,
 } Direction;
 
 typedef struct Sokoban {
@@ -52,8 +52,8 @@ bool sa_copy_level(Sokoban *level, Sokoban *target);
 bool sa_get_delta(Direction d, int *dx, int *dy);
 bool sa_is_in_bound(Sokoban *s, int x, int y);
 
-bool sa_move_player(Sokoban *s, Direction d, Move changed_fields, bool revert);
-bool sa_revert_move(Sokoban *s, int *d);
+bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]);
+bool sa_revert_move(Sokoban *s, Move move, int changed_fields[3]);
 int sa_swap(Sokoban *s, int x, int y, Direction d);
 
 bool sa_parse_board(char *lvl_buffer, int *x, int *y);

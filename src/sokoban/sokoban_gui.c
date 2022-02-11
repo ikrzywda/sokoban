@@ -151,9 +151,9 @@ void sg_sokoban_game_update(Sokoban *level, SokobanGame *game) {
 
 void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data) {
     SokobanGame *game = (SokobanGame*)data;
-    Move changed_fields;
+    int changed_fields[3];
+    Move save;
     Direction d;
-    bool field_changed = false;
     switch (event->keyval) {
         case GDK_KEY_j:
             d = UP;
@@ -180,13 +180,14 @@ void sg_handle_keypress(GtkWidget *window, GdkEventKey *event, gpointer data) {
             d = LEFT;
             break;
         case GDK_KEY_u:
-            field_changed = sa_revert_move(game->data, &d);
-            if (!field_changed) return;
-            break;
+            if (sa_revert_move(game->data, save, changed_fields)) {
+                sg_tiles_update(game, changed_fields);
+            }
+            return;
         default: return;
     };
 
-    if (sa_move_player(game->data, d, changed_fields, field_changed)) {
+    if (sa_move_player(game->data, d, changed_fields)) {
         sg_tiles_update(game, changed_fields);
     }
 }

@@ -38,7 +38,6 @@ Sokoban *sa_sokoban_init_from_buffer(int level_index) {
     line = strtok(buffer, "\n");
     lvl = sa_sokoban_init(x, y, level_index);
     c = *line;
-    char *bgn = line;
 
     while (line != NULL) {
         while ((c = *line) != '\0') {
@@ -48,7 +47,6 @@ Sokoban *sa_sokoban_init_from_buffer(int level_index) {
             } else if (c == CRATE) lvl->crates_left++;
 
             lvl->board[offset] = c;
-            printf("%d\t%c\t%d\t%ld\n", offset, lvl->board[offset], c, line-bgn);
             line++; offset++;
         }
         ++row;
@@ -168,10 +166,22 @@ int sa_swap(Sokoban *s, int x, int y, Direction d) {
     return 2;
 }
 
-bool sa_move_player(Sokoban *s, Direction d, Move changed_fields, bool revert) {
+bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]) {
     int dx, dy, cf;
+    Move save;
     if (!sa_get_delta(d, &dx, &dy)) return false;
-    if (!revert) mv_stack_push(s->move_history, d);
+    save[0] = s->player_x + s->player_y * s->width;
+    save[1] = (s->player_x + dx) + (s->player_y + dy) * s->width;
+    save[2] = (s->player_x + 2*dx) + (s->player_y + 2*dy) * s->width;
+    save[3] = s->board[save[0]];
+    save[4] = s->board[save[1]];
+    save[5] = s->board[save[2]];
+    save[6] = -d;
+    save[7] = s->moves;
+    save[8] = s->crates_left;
+    save[9] = s->player_x;
+    save[10] = s->player_y;
+
     memset(changed_fields, -1, sizeof(int) * 3);
     if ((cf = sa_swap(s, s->player_x, s->player_y, d))) {
         changed_fields[0] = s->player_x + s->player_y * s->width;
@@ -179,16 +189,28 @@ bool sa_move_player(Sokoban *s, Direction d, Move changed_fields, bool revert) {
         s->player_y += dy;
         changed_fields[1] = s->player_x + s->player_y * s->width;
         changed_fields[2] = (s->player_x + dx) + (s->player_y + dy) * s->width;
+        mv_stack_push(s->move_history, save);
         return true;
     }
     return false;
 }
 
-bool sa_revert_move(Sokoban *s, int *d) {
-    if (s == NULL) return false;
-    if (mv_stack_pop(s->move_history, d)) {
-        if (*d == LEFT || *d == RIGHT) *d = (*d == LEFT) ? RIGHT : LEFT;
-        if (*d == UP || *d == DOWN) *d = (*d == UP) ? DOWN : UP;
+bool sa_revert_move(Sokoban *s, Move move, int changed_fields[3]) {
+    int dx, dy;
+    memset(changed_fields, -1, sizeof(int) * 3);
+    sa_get_delta(move[6], &dx, &dy);
+    if (mv_stack_pop(s->move_history, move)) {
+        changed_fields[0] = move[0];
+        changed_fields[1] = move[1];
+        changed_fields[2] = move[2];
+        s->board[move[0]] = move[3]; 
+        s->board[move[1]] = move[4]; 
+        s->board[move[2]] = move[5]; 
+        s->moves = move[7];
+        s->crates_left = move[8];
+        s->player_x = move[9];
+        s->player_y = move[10];
+        s->moves--;
         return true;
     }
     return false;
@@ -270,12 +292,9 @@ void sa_read_metadata(Sokoban *level) {
 
     datapoint = strtok(buffer, ",");
     sscanf(datapoint, "%d", &level->best_time);
-    datapoint = strtok(buffer, ",");
+    datapoint = strtok(NULL, ",");
     sscanf(datapoint, "%d", &level->best_moves);
-    datapoint = strtok(buffer, ",");
-    sscanf(datapoint, "%ld", &level->time_elapsed);
-    datapoint = strtok(buffer, ",");
-    sscanf(datapoint, "%d", &level->moves);
+    datapoint = strtok(NULL, ",");
 }
 
 void sa_save_level(Sokoban *level) {

@@ -185,12 +185,8 @@ void gm_game_window(SokobanGame *game, GManager *gm) {
     GtkWidget *button_save = gtk_button_new_with_label("SAVE & EXIT");
     GtkWidget *button_abandon = gtk_button_new_with_label("ABANDON");
     
-    printf("SIZE: %d\n", game->data->height * game->data->width); 
-    printf("HEIGHT: %d WIDTH: %d\n", game->data->height, game->data->width); 
-
     for (int i = 0; i < game->data->height; ++i) {
         for (int j = 0; j < game->data->width; ++j) {
-            printf("Adding: %i\t%p\n", j + game->data->width * i, game->tiles[i+game->data->width * j - 1]);
             gtk_grid_attach(GTK_GRID(game_board), game->tiles[j + game->data->width * i],
             j, i, 1, 1);
         }
