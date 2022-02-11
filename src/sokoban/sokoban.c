@@ -36,6 +36,8 @@ Sokoban *sa_sokoban_init_from_buffer(int level_index) {
     if (!sa_parse_board(buffer, &x, &y)) return NULL;
     line = strtok(buffer, "\n");
     lvl = sa_sokoban_init(x, y, level_index);
+    c = *line;
+    char *bgn = line;
 
     while (line != NULL) {
         while ((c = *line) != '\0') {
@@ -43,10 +45,13 @@ Sokoban *sa_sokoban_init_from_buffer(int level_index) {
                 lvl->player_x = offset - row * lvl->width;
                 lvl->player_y = row;
             } else if (c == CRATE) lvl->crates_left++;
-            lvl->board[offset++] = c;
-            line++;
+
+            lvl->board[offset] = c;
+            printf("%d\t%c\t%d\t%ld\n", offset, lvl->board[offset], c, line-bgn);
+            line++; offset++;
         }
-        offset = sa_coordinate_to_index(lvl, 0, ++row);
+        ++row;
+        offset = sa_coordinate_to_index(lvl, 0, row);
         line = strtok(NULL, "\n");
     }
     sa_read_metadata(lvl);
@@ -159,11 +164,8 @@ int sa_swap(Sokoban *s, int x, int y, Direction d) {
         case WALL: return 0;
         default: break;
     };
-
     return 2;
 }
-
-// TODO: fix going out of bounds
 
 bool sa_move_player(Sokoban *s, Direction d, int changed_fields[3]) {
     int dx, dy;

@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <stdio.h>
+
 
 bool ut_file_exists(char *path) {
     FILE *f = fopen(path, "r");

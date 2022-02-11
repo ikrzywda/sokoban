@@ -92,7 +92,7 @@ void sg_tiles_update(SokobanGame *game, int changed_fields[3]) {
     int asset_index;
     char *board = game->data->board;
     for (int i = 0; i < 3; ++i) {
-        if (changed_fields[i] > 0 && changed_fields[i] < size) {
+        if (changed_fields[i] >= 0 && changed_fields[i] < size) {
             asset_index = sg_field_type_to_asset_index(board[changed_fields[i]]);
             pixbuf = game->assets[asset_index];
             gtk_image_set_from_pixbuf(GTK_IMAGE(game->tiles[changed_fields[i]]), pixbuf);
